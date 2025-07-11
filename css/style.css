@@ -1,0 +1,105 @@
+/* Base styles */
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f3f4f6; /* gray-100 */
+}
+.dark body {
+    background-color: #111827; /* gray-900 */
+}
+
+/* Custom scrollbar for a polished look */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: #e5e7eb; border-radius: 4px;}
+::-webkit-scrollbar-thumb { background: #9ca3af; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #6b7280; }
+.dark ::-webkit-scrollbar-track { background: #374151; }
+.dark ::-webkit-scrollbar-thumb { background: #6b7280; }
+.dark ::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+
+/* Resizable panel handle */
+.resizer {
+    flex-basis: 6px;
+    flex-shrink: 0;
+    background-color: #d1d5db; /* gray-300 */
+    cursor: col-resize;
+    transition: background-color 0.2s ease;
+    z-index: 10;
+}
+.dark .resizer {
+    background-color: #4b5563; /* gray-600 */
+}
+.resizer:hover {
+    background-color: #3b82f6; /* blue-500 */
+}
+
+/* Card styles for schema items */
+.schema-item-card {
+    transition: box-shadow 0.2s ease-in-out;
+}
+
+/* Styling for nested levels to create visual hierarchy */
+.nested-level {
+    margin-left: 1rem;
+    padding-left: 1rem;
+    border-left: 2px solid #d1d5db; /* gray-300 */
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+}
+.dark .nested-level {
+    border-left-color: #4b5563; /* gray-600 */
+}
+
+/* Specific border colors for different complex types */
+.nested-level.object-properties { border-left-color: #3b82f6; }
+.nested-level.array-items { border-left-color: #14b8a6; }
+.nested-level.oneof-options { border-left-color: #8b5cf6; }
+.nested-level.defs-properties { border-left-color: #d97706; }
+
+/* Drag & Drop visual feedback */
+.drag-handle { cursor: grab; }
+.dragging {
+    opacity: 0.5;
+    background: #e0e7ff; /* indigo-100 */
+}
+.dark .dragging {
+    background: #3730a3; /* indigo-800 */
+}
+.drop-zone-active {
+    outline: 2px dashed #3b82f6; /* blue-500 */
+    outline-offset: 4px;
+}
+
+/* Modal backdrop */
+.modal-backdrop {
+    background-color: rgba(0, 0, 0, 0.5);
+    transition: opacity 0.3s ease;
+}
+
+/* General input styling */
+input[type="text"], input[type="number"], select, textarea {
+    width: 100%;
+}
+
+/* Hide number input spinners */
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+  -webkit-appearance: none; 
+  margin: 0; 
+}
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+/* Collapsible content transition */
+.collapsible-content {
+    /* REMOVED: The max-height property is removed as it was not contributing to a working animation. */
+    /* REMOVED: The transition property is removed as it was non-functional. */
+    overflow: hidden;
+}
+.collapsible-content.collapsed {
+    max-height: 0;
+    margin-top: 0 !important;
+    opacity: 0;
+    /* ADDED: Add a transition here to animate the opacity and margin for a subtle fade-out effect, which works without max-height. */
+    transition: opacity 0.3s ease-in-out, margin-top 0.5s ease-in-out;
+}

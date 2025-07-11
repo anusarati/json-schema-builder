@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional JSON Schema Builder</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
+
+    <script>
+        // Basic Tailwind dark mode setup
+        if (localStorage.getItem('schemaBuilderTheme') === 'dark' || (!('schemaBuilderTheme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
+</head>
+<body class="dark:bg-gray-900 dark:text-gray-200">
+
+    <div id="main-container" class="flex flex-col md:flex-row h-screen w-full font-sans">
+        
+        <!-- Left Panel: Builder UI -->
+        <!-- FIXED: Replaced min-h-0 with overflow-hidden to correctly constrain the panel's height and enable internal scrolling. -->
+        <div id="left-panel" class="flex flex-col bg-white dark:bg-gray-800/50 shadow-lg flex-shrink-0 w-full md:w-1/2 overflow-hidden">
+            <header class="p-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm z-20 sticky top-0">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h1 class="text-xl font-bold text-gray-800 dark:text-gray-100">JSON Schema Builder</h1>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Visually create &amp; manage schemas.</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button id="clearSchemaBtn" title="New/Clear Schema" aria-label="Clear the current schema" class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-sparkle"><path d="M21.29 14.7a2.43 2.43 0 0 0-2.64-.15l-2.64 1.32a2.43 2.43 0 0 1-2.64-.15L10.72 14a2.43 2.43 0 0 0-2.64.15L5.4 15.47a2.43 2.43 0 0 1-2.64.15L2 15.17V19a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-4.28Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M4 12V4a2 2 0 0 1 2-2h8"/><path d="M9.5 10.5 8 12l1.5 1.5"/><path d="m12 8-1.5 1.5L12 11"/></svg>
+                        </button>
+                        <button id="theme-toggle-btn" title="Toggle Dark/Light Mode" aria-label="Toggle Dark/Light Mode" class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300">
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Scrollable Content Area -->
+            <div id="left-panel-scroller" class="flex-grow overflow-y-auto">
+                <div class="p-4 space-y-6">
+                    <div class="space-y-4 p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700">
+                        <h2 class="text-lg font-semibold text-gray-700 dark:text-gray-200">Schema Details</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="schemaTitle" class="text-sm font-medium text-gray-600 dark:text-gray-300">Title</label>
+                                <input type="text" id="schemaTitle" placeholder="My Awesome Schema" class="mt-1 p-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                            <div>
+                                <label for="rootSchemaTypeSelector" class="text-sm font-medium text-gray-600 dark:text-gray-300">Root Type</label>
+                                <select id="rootSchemaTypeSelector" class="mt-1 p-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="schemaDescription" class="text-sm font-medium text-gray-600 dark:text-gray-300">Description</label>
+                            <textarea id="schemaDescription" rows="3" placeholder="A detailed description of this schema's purpose." class="mt-1 p-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"></textarea>
+                        </div>
+                    </div>
+
+                    <div id="rootSchemaDefinitionContainer" class="space-y-4">
+                        <div id="rootActionControls" class="flex gap-2"></div>
+                        <div id="schemaBuilderRoot" class="space-y-4"></div>
+                    </div>
+                    
+                    <div class="space-y-4 p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700">
+                         <h2 class="text-lg font-semibold text-gray-700 dark:text-gray-200 flex items-center gap-2">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-amber-600"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path><path d="M5 3v4"></path><path d="M19 17v4"></path><path d="M3 5h4"></path><path d="M17 19h4"></path></svg>
+                              Reusable Definitions ($defs)
+                         </h2>
+                        <div id="definitionsBuilderRoot" class="space-y-4"></div>
+                        <button id="addDefinitionBtn" class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-amber-600 rounded-md hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 dark:focus:ring-offset-gray-800">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                            Add Definition
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="resizer" class="resizer hidden md:block"></div>
+
+        <!-- Right Panel: Schema Viewer -->
+        <!-- FIXED: Replaced min-h-0 with overflow-hidden to correctly constrain the panel's height. -->
+        <div id="right-panel" class="flex flex-col bg-gray-100 dark:bg-gray-900 flex-grow overflow-hidden">
+            <!-- FIXED: Restructured header with justify-between and a button group div for robust wrapping. -->
+            <header class="p-4 border-b border-gray-200 dark:border-gray-700 flex flex-wrap items-center justify-between gap-y-2 sticky top-0 bg-gray-100/80 dark:bg-gray-900/80 backdrop-blur-sm z-20">
+                <h2 class="text-lg font-semibold text-gray-700 dark:text-gray-200 pr-4">Generated Schema</h2>
+                
+                <div class="flex items-center flex-wrap gap-2">
+                    <button id="importBtn" class="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                        Import
+                    </button>
+                    <button id="exportBtn" class="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600">
+                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                        Export
+                    </button>
+                    <button id="copySchemaBtn" class="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-900 transition-colors duration-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                        Copy
+                    </button>
+                </div>
+            </header>
+
+            <div id="schema-output-container" class="flex-grow relative">
+                <pre class="w-full h-full text-sm leading-relaxed bg-gray-800 font-mono overflow-auto focus:outline-none p-4"><code id="schemaOutput" class="language-json block">{}</code></pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- Import Modal -->
+    <div id="importModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden modal-backdrop">
+        <div class="relative w-full max-w-2xl bg-white dark:bg-gray-800 rounded-lg shadow-xl" id="importModalContent">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-100">Import Schema</h3>
+                    <button id="closeImportModalBtn" aria-label="Close import modal" class="p-1 rounded-full text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </button>
+                </div>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Paste your JSON schema below or upload a file. This will replace the current schema.</p>
+                <textarea id="importSchemaText" rows="10" class="w-full p-2 border rounded-md bg-gray-50 dark:bg-gray-700 dark:border-gray-600 font-mono text-sm" placeholder='{ "type": "object", ... }'></textarea>
+                <div class="mt-6 flex justify-between items-center">
+                    <button id="importFileBtn" class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600">
+                        Upload File
+                    </button>
+                    <input type="file" id="importFileInput" class="hidden" accept=".json">
+                    <button id="parseSchemaBtn" class="px-6 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800">
+                        Parse and Load
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="fixed bottom-5 right-5 z-50 w-full max-w-xs space-y-3"></div>
+
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>
