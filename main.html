@@ -185,21 +185,23 @@
         <div id="resizer" class="resizer hidden md:block"></div>
 
         <div id="right-panel" class="flex flex-col bg-gray-100 dark:bg-gray-900 h-full md:h-screen flex-grow">
-            <header class="p-4 border-b border-gray-200 dark:border-gray-700 flex flex-wrap items-center gap-2 sticky top-0 bg-gray-100/80 dark:bg-gray-900/80 backdrop-blur-sm z-20">
-                <h2 class="text-lg font-semibold text-gray-700 dark:text-gray-200 mr-auto pr-4">Generated Schema</h2>
+            <header class="p-4 border-b border-gray-200 dark:border-gray-700 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 sticky top-0 bg-gray-100/80 dark:bg-gray-900/80 backdrop-blur-sm z-20">
+                <h2 class="text-lg font-semibold text-gray-700 dark:text-gray-200">Generated Schema</h2>
                 
-                <button id="importBtn" class="flex-shrink-0 flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-                    Import
-                </button>
-                <button id="exportBtn" class="flex-shrink-0 flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600">
-                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                    Export
-                </button>
-                <button id="copySchemaBtn" class="flex-shrink-0 flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-900 transition-colors duration-200">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                    Copy
-                </button>
+                <div class="flex flex-wrap gap-2 justify-end">
+                    <button id="importBtn" class="flex-shrink-0 flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                        Import
+                    </button>
+                    <button id="exportBtn" class="flex-shrink-0 flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600">
+                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                        Export
+                    </button>
+                    <button id="copySchemaBtn" class="flex-shrink-0 flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-900 transition-colors duration-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                        Copy
+                    </button>
+                </div>
             </header>
 
             <div class="flex-grow p-1 relative">
@@ -235,36 +237,42 @@
     <div id="toastContainer" class="fixed bottom-5 right-5 z-50 w-full max-w-xs space-y-3"></div>
 
     <script type="module">
-        // --- CONSTANTS & CONFIG ---
-        const ICONS = {
-            sun: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>`,
-            moon: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>`,
-            plus: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>`,
-            trash: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>`,
-            move: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 9 2 12 5 15"></polyline><polyline points="9 5 12 2 15 5"></polyline><polyline points="15 19 12 22 9 19"></polyline><polyline points="19 9 22 12 19 15"></polyline><line x1="2" y1="12" x2="22" y2="12"></line><line x1="12" y1="2" x2="12" y2="22"></line></svg>`,
-            chevronUp: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>`,
-            chevronDown: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>`,
-            check: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`,
+        // --- MODULES & SERVICES ---
+        const Config = {
+            ICONS: {
+                sun: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>`,
+                moon: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>`,
+                plus: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>`,
+                trash: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>`,
+                move: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 9 2 12 5 15"></polyline><polyline points="9 5 12 2 15 5"></polyline><polyline points="15 19 12 22 9 19"></polyline><polyline points="19 9 22 12 19 15"></polyline><line x1="2" y1="12" x2="22" y2="12"></line><line x1="12" y1="2" x2="12" y2="22"></line></svg>`,
+                chevronUp: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>`,
+                chevronDown: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>`,
+                check: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`,
+            },
+            FIELD_TYPES: {
+                all: ['$ref', 'string', 'number', 'integer', 'boolean', 'object', 'array', 'oneOf', 'null'],
+                root: ['object', 'array', 'oneOf', 'string', 'number', 'integer', 'boolean', 'null'],
+                get nonRef() { return this.all.filter(t => t !== '$ref') }
+            }
         };
 
-        const FIELD_TYPES = {
-            all: ['$ref', 'string', 'number', 'integer', 'boolean', 'object', 'array', 'oneOf', 'null'],
-            root: ['object', 'array', 'oneOf', 'string', 'number', 'integer', 'boolean', 'null'],
-            get nonRef() { return this.all.filter(t => t !== '$ref') }
+        const State = {
+            _appState: {
+                rootSchemaType: 'object',
+                title: 'Generated Schema',
+                description: 'A schema generated by the JSON Schema Builder',
+                definitions: [], // For $defs
+                schemaDefinition: [], // For root properties/items
+                nextId: 0,
+                draggedItemId: null,
+            },
+            get: function(key) { return this._appState[key]; },
+            set: function(key, value) { this._appState[key] = value; },
+            getState: function() { return this._appState; },
+            createId: function() { return `item_${this._appState.nextId++}`; }
         };
 
-        // --- STATE MANAGEMENT ---
-        let appState = {
-            rootSchemaType: 'object',
-            title: 'Generated Schema',
-            description: 'A schema generated by the JSON Schema Builder',
-            definitions: [], // For $defs
-            schemaDefinition: [], // For root properties/items
-            nextId: 0,
-            draggedItemId: null,
-        };
-
-        // --- DOM ELEMENTS ---
+        // --- DOM ELEMENTS --- (Kept separate for now for direct access, could be moved to UI module later)
         const dom = {
             themeToggleBtn: document.getElementById('theme-toggle-btn'),
             schemaTitle: document.getElementById('schemaTitle'),
@@ -292,42 +300,96 @@
             mainContainer: document.getElementById('main-container'),
         };
 
-        // --- UTILITY & HELPER FUNCTIONS ---
-        const createId = () => `item_${appState.nextId++}`;
+        // --- UI UTILITIES ---
+        const UIUtils = {
+            showToast: function(message, type = 'success') {
+                const toast = document.createElement('div');
+                const icon = type === 'success' ?
+                    `<svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>` :
+                    `<svg class="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg>`;
 
-        function showToast(message, type = 'success') {
-            const toast = document.createElement('div');
-            const icon = type === 'success' ? 
-                `<svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>` :
-                `<svg class="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg>`;
-            
-            toast.className = `flex items-center w-full max-w-xs p-4 text-gray-500 bg-white rounded-lg shadow-lg dark:text-gray-400 dark:bg-gray-800 transform transition-all duration-300 ease-in-out translate-y-4 opacity-0`;
-            toast.innerHTML = `
-                <div class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 rounded-lg">${icon}</div>
-                <div class="ml-3 text-sm font-normal">${message}</div>
-                <button type="button" class="ml-auto -mx-1.5 -my-1.5 bg-white text-gray-400 hover:text-gray-900 rounded-lg focus:ring-2 focus:ring-gray-300 p-1.5 hover:bg-gray-100 inline-flex h-8 w-8 dark:text-gray-500 dark:hover:text-white dark:bg-gray-800 dark:hover:bg-gray-700">
-                    <span class="sr-only">Close</span>
-                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
-                </button>`;
-            
-            dom.toastContainer.appendChild(toast);
-            
-            // Animate in
-            setTimeout(() => {
-                toast.classList.remove('translate-y-4', 'opacity-0');
-            }, 100);
+                toast.className = `flex items-center w-full max-w-xs p-4 text-gray-500 bg-white rounded-lg shadow-lg dark:text-gray-400 dark:bg-gray-800 transform transition-all duration-300 ease-in-out translate-y-4 opacity-0`;
+                toast.innerHTML = `
+                    <div class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 rounded-lg">${icon}</div>
+                    <div class="ml-3 text-sm font-normal">${message}</div>
+                    <button type="button" class="ml-auto -mx-1.5 -my-1.5 bg-white text-gray-400 hover:text-gray-900 rounded-lg focus:ring-2 focus:ring-gray-300 p-1.5 hover:bg-gray-100 inline-flex h-8 w-8 dark:text-gray-500 dark:hover:text-white dark:bg-gray-800 dark:hover:bg-gray-700">
+                        <span class="sr-only">Close</span>
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                    </button>`;
 
-            const closeBtn = toast.querySelector('button');
-            const removeToast = () => {
-                toast.classList.add('opacity-0', 'translate-x-full');
-                setTimeout(() => toast.remove(), 300);
-            };
+                dom.toastContainer.appendChild(toast);
 
-            closeBtn.addEventListener('click', removeToast);
-            setTimeout(removeToast, 5000);
-        }
+                // Animate in
+                setTimeout(() => {
+                    toast.classList.remove('translate-y-4', 'opacity-0');
+                }, 100);
 
-        function findItemAndParent(itemId, startNode = appState) {
+                const closeBtn = toast.querySelector('button');
+                const removeToastAnimation = () => { // Renamed to avoid conflict if this was global
+                    toast.classList.add('opacity-0', 'translate-x-full');
+                    setTimeout(() => toast.remove(), 300);
+                };
+
+                closeBtn.addEventListener('click', removeToastAnimation);
+                setTimeout(removeToastAnimation, 5000);
+            }
+        };
+
+        const SchemaService = {
+            createSchemaItem: function(initialData = {}) {
+                const defaultType = 'string';
+                const item = {
+                    id: State.createId(),
+                    name: initialData.name || '',
+                    type: initialData.type || defaultType,
+                    description: initialData.description || '',
+                    pattern: initialData.pattern || '',
+                    format: initialData.format || '',
+                    minLength: initialData.minLength,
+                    maxLength: initialData.maxLength,
+                    minimum: initialData.minimum,
+                    maximum: initialData.maximum,
+                    exclusiveMinimum: initialData.exclusiveMinimum,
+                    exclusiveMaximum: initialData.exclusiveMaximum,
+                    minItems: initialData.minItems,
+                    maxItems: initialData.maxItems,
+                    uniqueItems: initialData.uniqueItems || false,
+                    defaultValue: initialData.defaultValue,
+                    examples: initialData.examples || '',
+                    enum: Array.isArray(initialData.enum) ? initialData.enum : [],
+                    constValue: initialData.constValue,
+                    ref: initialData.ref || '',
+                    properties: [],
+                    items: null,
+                    oneOfSchemas: [],
+                    required: initialData.required || false,
+                    isDefinition: initialData.isDefinition || false,
+                    isCollapsed: initialData.isCollapsed || false,
+                };
+
+                if (item.type === 'object') {
+                    item.properties = Array.isArray(initialData.properties) ? initialData.properties : [];
+                } else if (item.type === 'array') {
+                    if (initialData.items && typeof initialData.items === 'object') {
+                        item.items = this.createSchemaItem(initialData.items); // Use this.
+                    } else {
+                        item.items = this.createSchemaItem({ type: 'string' }); // Use this.
+                    }
+                } else if (item.type === 'oneOf') {
+                    item.oneOfSchemas = Array.isArray(initialData.oneOfSchemas) ? initialData.oneOfSchemas : [];
+                }
+                return item;
+            }
+        };
+        const EventHandlerService = {};
+
+
+        // --- UTILITY & HELPER FUNCTIONS (Old section, to be refactored into modules above) ---
+        // showToast is now in UIUtils
+
+        // showToast is now in UIUtils
+
+        function findItemAndParent(itemId, startNode = State.getState()) {
             const collections = ['schemaDefinition', 'definitions'];
             for (const collectionName of collections) {
                 const searchArray = startNode[collectionName];
@@ -368,10 +430,10 @@
         }
 
         // --- SCHEMA ITEM CREATION ---
-        function createSchemaItem(initialData = {}) {
+        function createSchemaItem(initialData = {}) { // TODO: Move to SchemaService
             const defaultType = 'string';
             const item = {
-                id: createId(),
+                id: State.createId(), // Updated
                 name: initialData.name || '',
                 type: initialData.type || defaultType,
                 description: initialData.description || '',
@@ -407,9 +469,9 @@
                 item.properties = Array.isArray(initialData.properties) ? initialData.properties : [];
             } else if (item.type === 'array') {
                 if (initialData.items && typeof initialData.items === 'object') {
-                    item.items = createSchemaItem(initialData.items);
+                    item.items = createSchemaItem(initialData.items); // Recursive call
                 } else {
-                    item.items = createSchemaItem({ type: 'string' });
+                    item.items = createSchemaItem({ type: 'string' }); // Recursive call
                 }
             } else if (item.type === 'oneOf') {
                 item.oneOfSchemas = Array.isArray(initialData.oneOfSchemas) ? initialData.oneOfSchemas : [];
@@ -421,29 +483,29 @@
         // --- RENDERING LOGIC ---
         function render() {
             // Update global details
-            dom.schemaTitle.value = appState.title;
-            dom.schemaDescription.value = appState.description;
-            dom.rootSchemaTypeSelector.value = appState.rootSchemaType;
+            dom.schemaTitle.value = State._appState.title;
+            dom.schemaDescription.value = State._appState.description;
+            dom.rootSchemaTypeSelector.value = State._appState.rootSchemaType;
             
             // Render root controls and builder area
             renderRootControls();
             dom.schemaBuilderRoot.innerHTML = '';
-            if (appState.rootSchemaType === 'object' || appState.rootSchemaType === 'oneOf') {
-                if(appState.schemaDefinition.length > 0) {
-                    appState.schemaDefinition.forEach(item => dom.schemaBuilderRoot.appendChild(renderItem(item)));
+            if (State._appState.rootSchemaType === 'object' || State._appState.rootSchemaType === 'oneOf') {
+                if(State._appState.schemaDefinition.length > 0) {
+                    State._appState.schemaDefinition.forEach(item => dom.schemaBuilderRoot.appendChild(renderItem(item)));
                 } else {
-                    dom.schemaBuilderRoot.innerHTML = `<div class="text-center py-8 text-gray-500 dark:text-gray-400">No ${appState.rootSchemaType === 'object' ? 'properties' : 'options'} defined.</div>`;
+                    dom.schemaBuilderRoot.innerHTML = `<div class="text-center py-8 text-gray-500 dark:text-gray-400">No ${State._appState.rootSchemaType === 'object' ? 'properties' : 'options'} defined.</div>`;
                 }
-            } else if (appState.rootSchemaType === 'array') {
-                dom.schemaBuilderRoot.appendChild(renderItem(appState.schemaDefinition, { isRootArrayItem: true }));
+            } else if (State._appState.rootSchemaType === 'array') {
+                dom.schemaBuilderRoot.appendChild(renderItem(State._appState.schemaDefinition, { isRootArrayItem: true }));
             } else { // Primitives
-                dom.schemaBuilderRoot.appendChild(renderItem(appState.schemaDefinition, { isRootPrimitive: true }));
+                dom.schemaBuilderRoot.appendChild(renderItem(State._appState.schemaDefinition, { isRootPrimitive: true }));
             }
 
             // Render definitions
             dom.definitionsBuilderRoot.innerHTML = '';
-             if(appState.definitions.length > 0) {
-                appState.definitions.forEach(def => dom.definitionsBuilderRoot.appendChild(renderItem(def, { isDefinition: true })));
+             if(State._appState.definitions.length > 0) {
+                State._appState.definitions.forEach(def => dom.definitionsBuilderRoot.appendChild(renderItem(def, { isDefinition: true })));
             } else {
                 dom.definitionsBuilderRoot.innerHTML = `<div class="text-center py-4 text-gray-500 dark:text-gray-400">No reusable definitions created.</div>`;
             }
@@ -455,8 +517,8 @@
         function renderRootControls() {
             dom.rootActionControls.innerHTML = '';
             let btnText = '';
-            if (appState.rootSchemaType === 'object') btnText = 'Add Root Property';
-            else if (appState.rootSchemaType === 'oneOf') btnText = 'Add Root Option';
+            if (State._appState.rootSchemaType === 'object') btnText = 'Add Root Property';
+            else if (State._appState.rootSchemaType === 'oneOf') btnText = 'Add Root Option';
             
             if (btnText) {
                 const addBtn = document.createElement('button');
@@ -539,12 +601,16 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label for="default_${item.id}" class="text-xs font-medium text-gray-500 dark:text-gray-400">Default Value (JSON)</label>
-                                <input type="text" id="default_${item.id}" data-property="defaultValue" value="${item.defaultValue !== undefined ? item.defaultValue : ''}" placeholder='"a string", 42, true' class="mt-1 p-2 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md">
+                                <input type="text" id="default_${item.id}" data-property="defaultValue" value="${item.defaultValue !== undefined ? (typeof item.defaultValue === 'string' ? item.defaultValue : JSON.stringify(item.defaultValue)) : ''}" placeholder='"a string", 42, true' class="mt-1 p-2 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md">
                             </div>
                             <div>
                                 <label for="const_${item.id}" class="text-xs font-medium text-gray-500 dark:text-gray-400">Constant Value (JSON)</label>
-                                <input type="text" id="const_${item.id}" data-property="constValue" value="${item.constValue !== undefined ? item.constValue : ''}" placeholder='"USA", 100, false' class="mt-1 p-2 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md">
+                                <input type="text" id="const_${item.id}" data-property="constValue" value="${item.constValue !== undefined ? (typeof item.constValue === 'string' ? item.constValue : JSON.stringify(item.constValue)) : ''}" placeholder='"USA", 100, false' class="mt-1 p-2 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md">
                             </div>
+                        </div>
+                        <div>
+                            <label for="examples_${item.id}" class="text-xs font-medium text-gray-500 dark:text-gray-400">Examples (JSON)</label>
+                            <textarea id="examples_${item.id}" data-property="examples" rows="2" placeholder='[{"id": 1, "name": "foo"}, "bar"]' class="mt-1 p-2 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md">${item.examples !== undefined ? (typeof item.examples === 'string' ? item.examples : JSON.stringify(item.examples)) : ''}</textarea>
                         </div>
 
                         ${item.type === 'string' ? renderStringInputs(item) : ''}
@@ -578,7 +644,7 @@
         }
 
         function renderRefInputs(item) {
-            const defOptions = appState.definitions
+            const defOptions = State._appState.definitions
                 .filter(d => d.name) // Only allow referencing named definitions
                 .map(d => `<option value="#/$defs/${d.name}" ${item.ref === `#/$defs/${d.name}` ? 'selected' : ''}>${d.name}</option>`)
                 .join('');
@@ -698,46 +764,45 @@
         // --- EVENT HANDLERS ---
         function handleGlobalDetailChange(e) {
             const { id, value } = e.target;
-            if (id === 'schemaTitle') appState.title = value;
-            if (id === 'schemaDescription') appState.description = value;
+            if (id === 'schemaTitle') State._appState.title = value;
+            if (id === 'schemaDescription') State._appState.description = value;
             generateAndDisplaySchema();
         }
 
         function handleRootTypeChange(e) {
-            appState.rootSchemaType = e.target.value;
+            State._appState.rootSchemaType = e.target.value;
             resetSchemaDefinitionForRootType();
             render();
         }
 
         function resetSchemaDefinitionForRootType() {
-            appState.nextId = 0; // Reset IDs to keep them clean for new structure
-            const type = appState.rootSchemaType;
+            State._appState.nextId = 0;
+            const type = State._appState.rootSchemaType;
             if (type === 'object' || type === 'oneOf') {
-                appState.schemaDefinition = [];
+                State._appState.schemaDefinition = [];
             } else if (type === 'array') {
-                appState.schemaDefinition = createSchemaItem({ type: 'string' });
+                State._appState.schemaDefinition = SchemaService.createSchemaItem({ type: 'string' });
             } else { // Primitives
-                appState.schemaDefinition = createSchemaItem({ type });
+                State._appState.schemaDefinition = SchemaService.createSchemaItem({ type });
             }
         }
         
         function handleAddRootItem() {
-            const isOneOf = appState.rootSchemaType === 'oneOf';
-            const newItem = createSchemaItem({ type: 'string' });
-            appState.schemaDefinition.push(newItem);
+            const newItem = SchemaService.createSchemaItem({ type: 'string' });
+            State._appState.schemaDefinition.push(newItem);
             render();
         }
 
         function handleAddDefinition() {
-            const newDef = createSchemaItem({ isDefinition: true, type: 'object' });
-            appState.definitions.push(newDef);
+            const newDef = SchemaService.createSchemaItem({ isDefinition: true, type: 'object' });
+            State._appState.definitions.push(newDef);
             render();
         }
 
         function handleAddNestedItem(parentId, property) {
             const found = findItemAndParent(parentId);
             if (found && found.item) {
-                const newItem = createSchemaItem({ type: 'string' });
+                const newItem = SchemaService.createSchemaItem({ type: 'string' });
                 found.item[property].push(newItem);
                 render();
             }
@@ -758,32 +823,41 @@
             const item = found.item;
             const oldType = item.type;
 
-            // Type conversions
-            if (input.type === 'number') {
+            // Type conversions for general inputs
+            if (input.type === 'number' && property !== 'defaultValue' && property !== 'constValue') {
                 value = value === '' ? undefined : parseFloat(value);
             }
             if (property === 'enum') {
                 value = value.split(',').map(s => s.trim()).filter(Boolean);
             }
 
-            item[property] = value;
+            const jsonProperties = ['defaultValue', 'constValue', 'examples'];
+            if (jsonProperties.includes(property)) {
+                try {
+                    const V = value.trim();
+                    if (V.startsWith('{') || V.startsWith('[') || V === 'true' || V === 'false' || V === 'null' || !isNaN(parseFloat(V))) {
+                         item[property] = JSON.parse(value);
+                    } else {
+                        item[property] = value;
+                    }
+                } catch (e) {
+                    item[property] = value;
+                }
+            } else {
+                item[property] = value;
+            }
             
-            // If type changed, reset structure and re-render that item
-            if (property === 'type' && value !== oldType) {
-                // Clear old structure
+            if (property === 'type' && item[property] !== oldType) {
                 item.properties = [];
                 item.items = null;
                 item.oneOfSchemas = [];
                 item.ref = '';
-                // Initialize new structure
-                if (value === 'object') item.properties = [];
-                if (value === 'array') item.items = createSchemaItem({ type: 'string' });
-                if (value === 'oneOf') item.oneOfSchemas = [];
+                if (item.type === 'object') item.properties = [];
+                if (item.type === 'array') item.items = SchemaService.createSchemaItem({ type: 'string' });
+                if (item.type === 'oneOf') item.oneOfSchemas = [];
                 
-                // Full re-render is easiest
                 render();
             } else {
-                // For non-type changes, just regenerate the final schema
                 generateAndDisplaySchema();
             }
         }
@@ -818,7 +892,6 @@
             const newIndex = direction === 'up' ? index - 1 : index + 1;
 
             if (newIndex >= 0 && newIndex < parentArray.length) {
-                // Swap elements
                 [parentArray[index], parentArray[newIndex]] = [parentArray[newIndex], parentArray[index]];
                 render();
             }
@@ -828,8 +901,8 @@
         function handleDragStart(e) {
             const card = e.target.closest('.schema-item-card');
             if (card) {
-                appState.draggedItemId = card.dataset.itemId;
-                e.dataTransfer.setData('text/plain', appState.draggedItemId);
+                State._appState.draggedItemId = card.dataset.itemId;
+                e.dataTransfer.setData('text/plain', State._appState.draggedItemId);
                 e.dataTransfer.effectAllowed = 'move';
                 setTimeout(() => card.classList.add('dragging'), 0);
             }
@@ -839,13 +912,13 @@
             const card = e.target.closest('.schema-item-card');
             if (card) card.classList.remove('dragging');
             document.querySelectorAll('.drop-zone-active').forEach(dz => dz.classList.remove('drop-zone-active'));
-            appState.draggedItemId = null;
+            State._appState.draggedItemId = null;
         }
 
         function handleDragOver(e) {
             e.preventDefault();
             const card = e.target.closest('.schema-item-card');
-            if (card && card.dataset.itemId !== appState.draggedItemId) {
+            if (card && card.dataset.itemId !== State._appState.draggedItemId) {
                 e.dataTransfer.dropEffect = 'move';
                 card.classList.add('drop-zone-active');
             }
@@ -862,8 +935,8 @@
             const targetCard = e.target.closest('.schema-item-card');
             if (targetCard) targetCard.classList.remove('drop-zone-active');
 
-            if (targetCard && appState.draggedItemId && targetCard.dataset.itemId !== appState.draggedItemId) {
-                const dragged = findItemAndParent(appState.draggedItemId);
+            if (targetCard && State._appState.draggedItemId && targetCard.dataset.itemId !== State._appState.draggedItemId) {
+                const dragged = findItemAndParent(State._appState.draggedItemId);
                 const target = findItemAndParent(targetCard.dataset.itemId);
 
                 if (dragged && target && dragged.parentArray === target.parentArray) {
@@ -871,13 +944,13 @@
                     target.parentArray.splice(target.index, 0, itemToMove);
                     render();
                 } else {
-                    showToast("Can only reorder items at the same level.", "error");
+                    UIUtils.showToast("Can only reorder items at the same level.", "error");
                 }
             }
         }
 
         // --- SCHEMA GENERATION & OUTPUT ---
-        function buildSchemaFromItem(item) {
+        function buildSchemaFromItem(item) { // TODO: Move to SchemaService
             let schema = {};
             
             if (item.type === '$ref') {
@@ -888,19 +961,30 @@
             schema.type = item.type;
             if (item.description) schema.description = item.description;
             if (item.defaultValue !== undefined && item.defaultValue !== '') {
-                try { schema.default = JSON.parse(item.defaultValue); } 
-                catch { schema.default = item.defaultValue; }
+                if (typeof item.defaultValue === 'string') {
+                    try { schema.default = JSON.parse(item.defaultValue); }
+                    catch { schema.default = item.defaultValue; }
+                } else {
+                    schema.default = item.defaultValue;
+                }
             }
             if (item.constValue !== undefined && item.constValue !== '') {
-                try { schema.const = JSON.parse(item.constValue); } 
-                catch { schema.const = item.constValue; }
+                if (typeof item.constValue === 'string') {
+                    try { schema.const = JSON.parse(item.constValue); }
+                    catch { schema.const = item.constValue; }
+                } else {
+                    schema.const = item.constValue;
+                }
             }
-            if (item.examples) {
-                try { schema.examples = JSON.parse(item.examples); }
-                catch { schema.examples = [item.examples]; }
+            if (item.examples !== undefined && item.examples !== '') {
+                 if (typeof item.examples === 'string') {
+                    try { schema.examples = JSON.parse(item.examples); }
+                    catch { schema.examples = [item.examples]; }
+                } else {
+                    schema.examples = item.examples;
+                }
             }
 
-            // Type-specific keywords
             switch(item.type) {
                 case 'string':
                     if (item.pattern) schema.pattern = item.pattern;
@@ -939,35 +1023,33 @@
                 case 'oneOf':
                     if (item.oneOfSchemas && item.oneOfSchemas.length > 0) {
                         schema.oneOf = item.oneOfSchemas.map(buildSchemaFromItem);
-                        delete schema.type; // oneOf is a keyword, not a type
+                        delete schema.type;
                     }
                     break;
             }
             return schema;
         }
 
-        function generateAndDisplaySchema() {
+        function generateAndDisplaySchema() { // TODO: Move to SchemaService or UI
             let finalSchema = {
                 "$schema": "http://json-schema.org/draft-2020-12/schema#"
             };
 
-            if (appState.title) finalSchema.title = appState.title;
-            if (appState.description) finalSchema.description = appState.description;
+            if (State._appState.title) finalSchema.title = State._appState.title;
+            if (State._appState.description) finalSchema.description = State._appState.description;
 
-            // Build root schema
             const rootItem = {
-                type: appState.rootSchemaType,
-                properties: appState.rootSchemaType === 'object' ? appState.schemaDefinition : [],
-                items: appState.rootSchemaType === 'array' ? appState.schemaDefinition : null,
-                oneOfSchemas: appState.rootSchemaType === 'oneOf' ? appState.schemaDefinition : [],
-                ... ( (appState.rootSchemaType !== 'object' && appState.rootSchemaType !== 'array' && appState.rootSchemaType !== 'oneOf') ? appState.schemaDefinition : {} )
+                type: State._appState.rootSchemaType,
+                properties: State._appState.rootSchemaType === 'object' ? State._appState.schemaDefinition : [],
+                items: State._appState.rootSchemaType === 'array' ? State._appState.schemaDefinition : null,
+                oneOfSchemas: State._appState.rootSchemaType === 'oneOf' ? State._appState.schemaDefinition : [],
+                ... ( (State._appState.rootSchemaType !== 'object' && State._appState.rootSchemaType !== 'array' && State._appState.rootSchemaType !== 'oneOf') ? State._appState.schemaDefinition : {} )
             };
             Object.assign(finalSchema, buildSchemaFromItem(rootItem));
 
-            // Build definitions
-            if (appState.definitions.length > 0) {
+            if (State._appState.definitions.length > 0) {
                 finalSchema.$defs = {};
-                appState.definitions.forEach(def => {
+                State._appState.definitions.forEach(def => {
                     if (def.name) {
                         finalSchema.$defs[def.name] = buildSchemaFromItem(def);
                     }
@@ -976,7 +1058,10 @@
             }
 
             dom.schemaOutput.textContent = JSON.stringify(finalSchema, null, 2);
-            // Apply syntax highlighting
+
+            if (dom.schemaOutput.hasAttribute('data-highlighted')) {
+                dom.schemaOutput.removeAttribute('data-highlighted');
+            }
             hljs.highlightElement(dom.schemaOutput);
         }
 
@@ -985,13 +1070,11 @@
             const schemaText = dom.schemaOutput.textContent;
             const originalBtnHTML = dom.copySchemaBtn.innerHTML;
 
-            // Use modern Clipboard API
             if (navigator.clipboard && window.isSecureContext) {
                 try {
                     await navigator.clipboard.writeText(schemaText);
-                    showToast("Schema copied to clipboard!");
+                    UIUtils.showToast("Schema copied to clipboard!");
 
-                    // Visual feedback
                     dom.copySchemaBtn.innerHTML = `${ICONS.check} Copied!`;
                     dom.copySchemaBtn.classList.add('bg-green-600', 'hover:bg-green-700');
                     dom.copySchemaBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
@@ -1003,11 +1086,10 @@
                     }, 2000);
 
                 } catch (err) {
-                    showToast("Failed to copy schema.", "error");
+                    UIUtils.showToast("Failed to copy schema.", "error");
                     console.error('Failed to copy: ', err);
                 }
             } else {
-                // Fallback for older browsers
                 const textArea = document.createElement("textarea");
                 textArea.value = schemaText;
                 textArea.style.position = "absolute";
@@ -1016,9 +1098,9 @@
                 textArea.select();
                 try {
                     document.execCommand('copy');
-                    showToast("Schema copied to clipboard!");
+                    UIUtils.showToast("Schema copied to clipboard!");
                 } catch (err) {
-                    showToast("Failed to copy schema.", "error");
+                    UIUtils.showToast("Failed to copy schema.", "error");
                 }
                 document.body.removeChild(textArea);
             }
@@ -1030,7 +1112,7 @@
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `${appState.title.replace(/[\s/]/g, '_') || 'schema'}.json`;
+            a.download = `${State._appState.title.replace(/[\s/]/g, '_') || 'schema'}.json`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -1051,9 +1133,9 @@
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     dom.importSchemaText.value = e.target.result;
-                    showToast(`Loaded ${file.name} successfully.`);
+                    UIUtils.showToast(`Loaded ${file.name} successfully.`);
                 };
-                reader.onerror = () => showToast(`Error reading file.`, "error");
+                reader.onerror = () => UIUtils.showToast(`Error reading file.`, "error");
                 reader.readAsText(file);
             }
         }
@@ -1061,58 +1143,55 @@
         function handleParseAndLoad() {
             const schemaStr = dom.importSchemaText.value;
             if (!schemaStr.trim()) {
-                showToast("Import field is empty.", "error");
+                UIUtils.showToast("Import field is empty.", "error");
                 return;
             }
             try {
                 const importedObj = JSON.parse(schemaStr);
                 parseAndLoadRootSchema(importedObj);
-                showToast("Schema imported successfully!");
+                UIUtils.showToast("Schema imported successfully!");
                 toggleImportModal(false);
                 dom.importSchemaText.value = '';
             } catch (error) {
-                showToast(`Error parsing schema: ${error.message}`, "error");
+                UIUtils.showToast(`Error parsing schema: ${error.message}`, "error");
             }
         }
 
-        function parseAndLoadRootSchema(schema) {
-            appState.nextId = 0;
-            appState.title = schema.title || 'Imported Schema';
-            appState.description = schema.description || '';
-            appState.definitions = [];
+        function parseAndLoadRootSchema(schema) { // TODO: Move to SchemaService or similar
+            State._appState.nextId = 0;
+            State._appState.title = schema.title || 'Imported Schema';
+            State._appState.description = schema.description || '';
+            State._appState.definitions = [];
             
-            // Parse definitions
             if (schema.$defs) {
-                appState.definitions = Object.entries(schema.$defs).map(([name, defSchema]) => {
+                State._appState.definitions = Object.entries(schema.$defs).map(([name, defSchema]) => {
                     return mapJsonToInternal(defSchema, {name, isDefinition: true});
                 });
             }
 
-            // Determine root type and parse
             if (schema.oneOf) {
-                appState.rootSchemaType = 'oneOf';
-                appState.schemaDefinition = schema.oneOf.map(s => mapJsonToInternal(s));
+                State._appState.rootSchemaType = 'oneOf';
+                State._appState.schemaDefinition = schema.oneOf.map(s => mapJsonToInternal(s));
             } else if (schema.type === 'object' || (!schema.type && schema.properties)) {
-                appState.rootSchemaType = 'object';
+                State._appState.rootSchemaType = 'object';
                 const required = schema.required || [];
-                appState.schemaDefinition = schema.properties ? Object.entries(schema.properties).map(([name, propSchema]) => {
+                State._appState.schemaDefinition = schema.properties ? Object.entries(schema.properties).map(([name, propSchema]) => {
                     return mapJsonToInternal(propSchema, { name, required: required.includes(name) });
                 }) : [];
             } else if (schema.type === 'array') {
-                appState.rootSchemaType = 'array';
-                appState.schemaDefinition = schema.items ? mapJsonToInternal(schema.items) : createSchemaItem({type: 'string'});
+                State._appState.rootSchemaType = 'array';
+                State._appState.schemaDefinition = schema.items ? mapJsonToInternal(schema.items) : SchemaService.createSchemaItem({type: 'string'});
             } else if (FIELD_TYPES.root.includes(schema.type)) {
-                appState.rootSchemaType = schema.type;
-                appState.schemaDefinition = mapJsonToInternal(schema);
+                State._appState.rootSchemaType = schema.type;
+                State._appState.schemaDefinition = mapJsonToInternal(schema);
             } else {
-                // Fallback for empty or unknown schema
-                appState.rootSchemaType = 'object';
-                appState.schemaDefinition = [];
+                State._appState.rootSchemaType = 'object';
+                State._appState.schemaDefinition = [];
             }
             render();
         }
 
-        function mapJsonToInternal(schemaPart, options = {}) {
+        function mapJsonToInternal(schemaPart, options = {}) { // TODO: Move to SchemaService
             const { name = '', required = false, isDefinition = false } = options;
             
             let type = schemaPart.type;
@@ -1121,7 +1200,7 @@
             if (!type && schemaPart.properties) type = 'object';
 
 
-            const internalItem = createSchemaItem({
+            const internalItem = SchemaService.createSchemaItem({
                 name,
                 type,
                 description: schemaPart.description,
@@ -1172,21 +1251,18 @@
             const left = dom.leftPanel;
             const right = dom.rightPanel;
 
-            // Restore saved width
             const savedWidth = localStorage.getItem('schemaBuilderLeftPanelWidth');
             if (savedWidth) {
                 left.style.flexBasis = savedWidth;
             } else {
-                left.style.flexBasis = '50%'; // Default to 50% if no saved width
+                left.style.flexBasis = '50%';
             }
 
             const mouseMoveHandler = (e) => {
-                // Prevent selection while dragging
                 e.preventDefault();
                 const containerRect = dom.mainContainer.getBoundingClientRect();
                 const newLeftWidth = e.clientX - containerRect.left;
 
-                // Enforce min/max widths
                 if (newLeftWidth > 300 && newLeftWidth < (containerRect.width - 300)) {
                     left.style.flexBasis = `${newLeftWidth}px`;
                 }
@@ -1197,7 +1273,6 @@
                 document.removeEventListener('mouseup', mouseUpHandler);
                 document.body.style.cursor = 'default';
                 document.body.style.userSelect = 'auto';
-                 // Save final width
                 localStorage.setItem('schemaBuilderLeftPanelWidth', left.style.flexBasis);
             };
 
@@ -1212,15 +1287,12 @@
 
 
         // --- INITIALIZATION ---
-        function init() {
-            // Populate selects
+        function init() { // TODO: Break down further, move parts to EventHandlerService
             dom.rootSchemaTypeSelector.innerHTML = FIELD_TYPES.root.map(t => `<option value="${t}">${t}</option>`).join('');
 
-            // Set initial theme
             const isDark = document.documentElement.classList.contains('dark');
             dom.themeToggleBtn.innerHTML = isDark ? ICONS.sun : ICONS.moon;
             
-            // Add event listeners
             dom.themeToggleBtn.addEventListener('click', toggleTheme);
             dom.schemaTitle.addEventListener('input', handleGlobalDetailChange);
             dom.schemaDescription.addEventListener('input', handleGlobalDetailChange);
@@ -1229,7 +1301,6 @@
             dom.copySchemaBtn.addEventListener('click', handleCopySchema);
             dom.exportBtn.addEventListener('click', handleExportSchema);
             
-            // Modal listeners
             dom.importBtn.addEventListener('click', () => toggleImportModal(true));
             dom.closeImportModalBtn.addEventListener('click', () => toggleImportModal(false));
             dom.importFileBtn.addEventListener('click', () => dom.importFileInput.click());
@@ -1239,7 +1310,6 @@
                 if (e.target === dom.importModal) toggleImportModal(false);
             });
 
-            // Event delegation for dynamic content in the builder panel
             const builderPanel = dom.leftPanel;
             builderPanel.addEventListener('input', e => {
                 if (e.target.matches('input, select, textarea')) {
@@ -1270,15 +1340,12 @@
             builderPanel.addEventListener('dragleave', handleDragLeave);
             builderPanel.addEventListener('drop', handleDrop);
 
-            // Initialize resizable panels
             initResizablePanels();
 
-            // Initial setup and render
             resetSchemaDefinitionForRootType();
             render();
         }
 
-        // Run on load
         document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
