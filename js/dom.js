@@ -3,6 +3,7 @@ export const dom = {
     clearSchemaBtn: document.getElementById('clearSchemaBtn'),
     collapseAllBtn: document.getElementById('collapseAllBtn'),
     expandAllBtn: document.getElementById('expandAllBtn'),
+    schemaTabsContainer: document.getElementById('schemaTabsContainer'),
     schemaTitle: document.getElementById('schemaTitle'),
     schemaDescription: document.getElementById('schemaDescription'),
     rootSchemaTypeSelector: document.getElementById('rootSchemaTypeSelector'),

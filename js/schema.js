@@ -1,4 +1,4 @@
-import { appState } from './state.js';
+import { appState, getActiveSchemaState } from './state.js';
 import { dom } from './dom.js';
 import { createId } from './utils.js';
 import { FIELD_TYPES } from './config.js';
@@ -116,22 +116,29 @@ function buildSchemaFromItem(item) {
 }
 
 export function generateAndDisplaySchema() {
+    const activeSchema = getActiveSchemaState();
+    if (!activeSchema) {
+        dom.schemaOutput.textContent = '{}';
+        hljs.highlightElement(dom.schemaOutput);
+        return;
+    }
+
     let finalSchema = { "$schema": "http://json-schema.org/draft-2020-12/schema#" };
-    if (appState.title) finalSchema.title = appState.title;
-    if (appState.description) finalSchema.description = appState.description;
+    if (activeSchema.title) finalSchema.title = activeSchema.title;
+    if (activeSchema.description) finalSchema.description = activeSchema.description;
 
     const rootItem = {
-        type: appState.rootSchemaType,
-        properties: appState.rootSchemaType === 'object' ? appState.schemaDefinition : [],
-        items: appState.rootSchemaType === 'array' ? appState.schemaDefinition : null,
-        oneOfSchemas: appState.rootSchemaType === 'oneOf' ? appState.schemaDefinition : [],
-        ...((!['object', 'array', 'oneOf'].includes(appState.rootSchemaType)) ? appState.schemaDefinition : {})
+        type: activeSchema.rootSchemaType,
+        properties: activeSchema.rootSchemaType === 'object' ? activeSchema.schemaDefinition : [],
+        items: activeSchema.rootSchemaType === 'array' ? activeSchema.schemaDefinition : null,
+        oneOfSchemas: activeSchema.rootSchemaType === 'oneOf' ? activeSchema.schemaDefinition : [],
+        ...((!['object', 'array', 'oneOf'].includes(activeSchema.rootSchemaType)) ? activeSchema.schemaDefinition : {})
     };
     Object.assign(finalSchema, buildSchemaFromItem(rootItem));
 
-    if (appState.definitions.length > 0) {
+    if (activeSchema.definitions.length > 0) {
         finalSchema.$defs = {};
-        appState.definitions.forEach(def => {
+        activeSchema.definitions.forEach(def => {
             if (def.name) finalSchema.$defs[def.name] = buildSchemaFromItem(def);
         });
         if (Object.keys(finalSchema.$defs).length === 0) delete finalSchema.$defs;
@@ -139,7 +146,7 @@ export function generateAndDisplaySchema() {
 
     const newCode = document.createElement('code');
     newCode.id = 'schemaOutput';
-    newCode.className = 'language-json block';
+    newCode.className = 'language-json block w-full h-full p-4';
     newCode.textContent = JSON.stringify(finalSchema, null, 2);
     
     dom.schemaOutput.replaceWith(newCode);

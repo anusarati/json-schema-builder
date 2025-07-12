@@ -1,12 +1,13 @@
-import { appState } from '../state.js';
+import { getActiveSchemaState } from '../state.js';
 
 export function renderRefInputs(item) {
+    const activeSchema = getActiveSchemaState();
     return `
         <div>
             <label for="ref_${item.id}" class="text-xs font-medium text-slate-500 dark:text-slate-400">Reference ($ref)</label>
             <select id="ref_${item.id}" data-property="ref">
                 <option value="">Select a definition...</option>
-                ${appState.definitions
+                ${activeSchema.definitions
                     .filter(d => d.name)
                     .map(d => `<option value="#/$defs/${d.name}" ${item.ref === `#/$defs/${d.name}` ? 'selected' : ''}>${d.name}</option>`)
                     .join('')

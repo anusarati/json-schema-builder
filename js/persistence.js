@@ -1,18 +1,15 @@
-const LOCAL_STORAGE_KEY = 'jsonSchemaBuilderState';
+const LOCAL_STORAGE_KEY = 'jsonSchemaBuilderState_v2'; // New key to prevent conflicts
 
 /**
- * Saves the relevant parts of the application state to localStorage.
+ * Saves the application state to localStorage.
  * @param {object} state The global application state.
  */
 export function saveState(state) {
     try {
+        // We only need to save the schemas and the active index
         const stateToSave = {
-            title: state.title,
-            description: state.description,
-            rootSchemaType: state.rootSchemaType,
-            schemaDefinition: state.schemaDefinition,
-            definitions: state.definitions,
-            nextId: state.nextId,
+            schemas: state.schemas,
+            activeSchemaIndex: state.activeSchemaIndex,
         };
         localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(stateToSave));
     } catch (e) {
@@ -28,6 +25,17 @@ export function loadState() {
     try {
         const savedState = localStorage.getItem(LOCAL_STORAGE_KEY);
         if (savedState === null) {
+            // Check for old state format and migrate if possible
+            const oldState = localStorage.getItem('jsonSchemaBuilderState');
+            if(oldState) {
+                console.log("Found old state, migrating...");
+                const parsedOldState = JSON.parse(oldState);
+                localStorage.removeItem('jsonSchemaBuilderState'); // Clean up old key
+                return {
+                    schemas: [parsedOldState], // Wrap old state in the new structure
+                    activeSchemaIndex: 0
+                };
+            }
             return undefined; // No saved state
         }
         return JSON.parse(savedState);
@@ -43,6 +51,7 @@ export function loadState() {
 export function clearState() {
     try {
         localStorage.removeItem(LOCAL_STORAGE_KEY);
+        localStorage.removeItem('jsonSchemaBuilderState'); // Also clear old key
     } catch (e) {
         console.error("Failed to clear state from localStorage", e);
     }

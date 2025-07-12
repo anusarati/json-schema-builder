@@ -1,17 +1,19 @@
-import { appState } from '../state.js';
+import { getActiveSchemaState } from '../state.js';
 import { createSchemaItem, generateAndDisplaySchema } from '../schema.js';
 import { findItemAndParent } from '../utils.js';
 import { render } from '../renderer.js';
 
 export function handleAddRootItem() {
+    const activeSchema = getActiveSchemaState();
     const newItem = createSchemaItem({ type: 'string' });
-    appState.schemaDefinition.push(newItem);
+    activeSchema.schemaDefinition.push(newItem);
     render();
 }
 
 export function handleAddDefinition() {
+    const activeSchema = getActiveSchemaState();
     const newDef = createSchemaItem({ isDefinition: true, type: 'object' });
-    appState.definitions.push(newDef);
+    activeSchema.definitions.push(newDef);
     render();
 }
 

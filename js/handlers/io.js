@@ -1,5 +1,5 @@
 import { dom } from '../dom.js';
-import { appState } from '../state.js';
+import { appState, getActiveSchemaState } from '../state.js';
 import { ICONS, FIELD_TYPES } from '../config.js';
 import { showToast } from '../utils.js';
 import { createSchemaItem, mapJsonToInternal } from '../schema.js';
@@ -26,12 +26,13 @@ export async function handleCopySchema() {
 }
 
 export function handleExportSchema() {
+    const activeSchema = getActiveSchemaState();
     const schemaText = dom.schemaOutput.textContent;
     const blob = new Blob([schemaText], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${appState.title.replace(/[\s/]/g, '_') || 'schema'}.json`;
+    a.download = `${activeSchema.title.replace(/[\s/]/g, '_') || 'schema'}.json`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -56,33 +57,37 @@ export function handleImportFile(event) {
 }
 
 function parseAndLoadRootSchema(schema) {
-    appState.nextId = 0;
-    appState.title = schema.title || 'Imported Schema';
-    appState.description = schema.description || '';
-    appState.definitions = [];
+    const activeSchema = getActiveSchemaState();
+    
+    activeSchema.nextId = 0;
+    activeSchema.title = schema.title || 'Imported Schema';
+    activeSchema.description = schema.description || '';
+    activeSchema.definitions = [];
     
     if (schema.$defs) {
-        appState.definitions = Object.entries(schema.$defs).map(([name, defSchema]) => 
+        activeSchema.definitions = Object.entries(schema.$defs).map(([name, defSchema]) => 
             mapJsonToInternal(defSchema, {name, isDefinition: true}));
     }
 
     if (schema.oneOf) {
-        appState.rootSchemaType = 'oneOf';
-        appState.schemaDefinition = schema.oneOf.map(s => mapJsonToInternal(s));
+        activeSchema.rootSchemaType = 'oneOf';
+        activeSchema.schemaDefinition = schema.oneOf.map(s => mapJsonToInternal(s));
     } else if (schema.type === 'object' || (!schema.type && schema.properties)) {
-        appState.rootSchemaType = 'object';
+        activeSchema.rootSchemaType = 'object';
         const required = schema.required || [];
-        appState.schemaDefinition = schema.properties ? Object.entries(schema.properties).map(([name, propSchema]) => 
+        activeSchema.schemaDefinition = schema.properties ? Object.entries(schema.properties).map(([name, propSchema]) => 
             mapJsonToInternal(propSchema, { name, required: required.includes(name) })) : [];
     } else if (schema.type === 'array') {
-        appState.rootSchemaType = 'array';
-        appState.schemaDefinition = schema.items ? mapJsonToInternal(schema.items) : createSchemaItem({type: 'string'});
+        activeSchema.rootSchemaType = 'array';
+        activeSchema.schemaDefinition = schema.items ? mapJsonToInternal(schema.items) : createSchemaItem({type: 'string'});
     } else if (FIELD_TYPES.root.includes(schema.type)) {
-        appState.rootSchemaType = schema.type;
-        appState.schemaDefinition = mapJsonToInternal(schema);
+        activeSchema.rootSchemaType = schema.type;
+        activeSchema.schemaDefinition = mapJsonToInternal(schema);
     } else {
-        appState.rootSchemaType = 'object';
-        appState.schemaDefinition = [];
+        // Fallback for schemas without a defined type but with other properties
+        activeSchema.rootSchemaType = 'object';
+        activeSchema.schemaDefinition = [];
+        showToast("Imported schema has an unknown root type, defaulting to object.", "error");
     }
     render();
 }
@@ -94,7 +99,7 @@ export function handleParseAndLoad() {
         return;
     }
 
-    if (!confirm('Importing a new schema will replace your current work. Are you sure you want to continue?')) {
+    if (!confirm('Importing a new schema will replace the content of the current tab. Are you sure?')) {
         return;
     }
 

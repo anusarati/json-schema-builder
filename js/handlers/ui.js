@@ -1,22 +1,33 @@
 import { dom } from '../dom.js';
 import { ICONS } from '../config.js';
-import { appState } from '../state.js';
+import { appState, getActiveSchemaState } from '../state.js';
 import { render } from '../renderer.js';
 
 export function toggleTheme() {
-    const isDark = document.documentElement.classList.toggle('dark');
-    localStorage.setItem('schemaBuilderTheme', isDark ? 'dark' : 'light');
-    dom.themeToggleBtn.innerHTML = isDark ? ICONS.sun : ICONS.moon;
-
-    // Toggle highlight.js theme
+    const isCurrentlyDark = document.documentElement.classList.contains('dark');
     const lightTheme = document.getElementById('hljs-light-theme');
     const darkTheme = document.getElementById('hljs-dark-theme');
-    if (lightTheme && darkTheme) {
-        lightTheme.disabled = isDark;
-        darkTheme.disabled = !isDark;
+
+    if (isCurrentlyDark) {
+        // Switch to light mode
+        document.documentElement.classList.remove('dark');
+        localStorage.setItem('schemaBuilderTheme', 'light');
+        dom.themeToggleBtn.innerHTML = ICONS.moon;
+        if (lightTheme) lightTheme.disabled = false;
+        if (darkTheme) darkTheme.disabled = true;
+    } else {
+        // Switch to dark mode
+        document.documentElement.classList.add('dark');
+        localStorage.setItem('schemaBuilderTheme', 'dark');
+        dom.themeToggleBtn.innerHTML = ICONS.sun;
+        if (lightTheme) lightTheme.disabled = true;
+        if (darkTheme) darkTheme.disabled = false;
     }
+
     // Re-highlight the code to apply the new theme
-    hljs.highlightElement(dom.schemaOutput);
+    if (dom.schemaOutput) {
+       hljs.highlightElement(dom.schemaOutput);
+    }
 }
 
 export function initResizablePanels() {
@@ -79,13 +90,15 @@ function setAllCollapsed(isCollapsed, items) {
 }
 
 export function handleCollapseAll() {
-    setAllCollapsed(true, appState.schemaDefinition);
-    setAllCollapsed(true, appState.definitions);
+    const activeSchema = getActiveSchemaState();
+    setAllCollapsed(true, activeSchema.schemaDefinition);
+    setAllCollapsed(true, activeSchema.definitions);
     render();
 }
 
 export function handleExpandAll() {
-    setAllCollapsed(false, appState.schemaDefinition);
-    setAllCollapsed(false, appState.definitions);
+    const activeSchema = getActiveSchemaState();
+    setAllCollapsed(false, activeSchema.schemaDefinition);
+    setAllCollapsed(false, activeSchema.definitions);
     render();
 }
