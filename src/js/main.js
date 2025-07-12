@@ -1,4 +1,5 @@
-import { loadPartials } from './loader.js';
+import '../main.css'; // Import main CSS file for Vite to process
+import { loadApp } from './loader.js';
 import { initDom, dom } from './dom.js';
 import { FIELD_TYPES, ICONS } from './config.js';
 import { render } from './renderer.js';
@@ -79,13 +80,10 @@ function init() {
     render();
 }
 
-async function main() {
-    const loadedSuccessfully = await loadPartials();
-    if (loadedSuccessfully) {
-        initDom();
-        init();
-    }
-    // If not successful, the loader has already displayed an error message.
+function main() {
+    loadApp();
+    initDom();
+    init();
 }
 
 document.addEventListener('DOMContentLoaded', main);

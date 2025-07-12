@@ -1,35 +1,35 @@
-# README.md
-# json-schema-builder
-Build JSON Schema
+# JSON Schema Builder
+
+A visual tool to create and manage JSON Schemas, including support for OpenAI Function definitions.
 
 ## How to Run Locally
 
-Because this project uses modern JavaScript modules (`import`/`export`), you cannot run it by simply opening `index.html` in your browser from the local filesystem (`file:///...`). This is due to browser security policies (CORS).
+This project uses [Vite](https://vitejs.dev/) as a build tool to handle modern JavaScript modules and Tailwind CSS compilation. You must use the Node.js package manager (`npm`) to run the application.
 
-You need to serve the files using a local web server. Here's a simple way to do it using Python.
-
-1.  **Navigate to the project directory:**
-    Open your terminal or command prompt and change to the directory where `index.html` is located.
-
+1.  **Install Dependencies:**
+    First, you need to install all the required packages listed in `package.json`. Open your terminal in the project's root directory and run:
     ```bash
-    cd path/to/json-schema-builder
+    npm install
     ```
 
-2.  **Start a local server:**
-    If you have Python 3 installed, run:
+2.  **Start the Development Server:**
+    Once the installation is complete, you can start the local development server. This server features hot-reloading, so changes you make to the source code will be reflected in the browser instantly.
     ```bash
-    python3 -m http.server
-    ```
-    If you have Python 2, run:
-    ```bash
-    python -m SimpleHTTPServer
+    npm run dev
     ```
 
-3.  **Open the application:**
-    Open your web browser and go to the URL provided by the server, which is typically:
-    [http://localhost:8000](http://localhost:8000)
+3.  **Open the Application:**
+    The command will output a local URL in your terminal. Open this URL in your web browser, which is typically:
+    [http://localhost:5173](http://localhost:5173)
 
-### Alternative (Node.js)
+## Building for Production
 
-If you have Node.js installed, you can use the `http-server` package:
+When you are ready to deploy the application (e.g., to GitHub Pages), you can create an optimized, static build.
 
+1.  **Run the Build Command:**
+    ```bash
+    npm run build
+    ```
+
+2.  **Deploy the `dist` Directory:**
+    This command will create a `dist` folder in your project root. This folder contains the minified and optimized HTML, CSS, and JavaScript files. You can deploy the contents of this `dist` folder to any static web hosting service like GitHub Pages, Vercel, or Netlify.

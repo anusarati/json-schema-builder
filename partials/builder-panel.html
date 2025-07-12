@@ -1,0 +1,80 @@
+<!-- Left Panel: Builder UI -->
+<div id="left-panel" class="flex flex-col bg-white dark:bg-slate-900 shadow-lg flex-shrink-0 w-full overflow-hidden">
+    <header class="p-4 border-b border-slate-200 dark:border-slate-800 flex-shrink-0 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm z-20 sticky top-0">
+        <div class="flex justify-between items-start flex-wrap gap-y-2">
+            <div>
+                <h1 class="text-xl font-bold text-slate-800 dark:text-slate-100">JSON Schema Builder</h1>
+                <p class="text-sm text-slate-500 dark:text-slate-400">Visually create &amp; manage schemas.</p>
+            </div>
+            <div class="flex items-center flex-shrink-0 flex-wrap justify-end gap-1">
+                <button id="collapseAllBtn" title="Collapse All" aria-label="Collapse all properties" class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-minimize-2"><path d="M4 14h6v6"/><path d="M20 10h-6V4"/><path d="M14 10l7-7"/><path d="M3 21l7-7"/></svg>
+                </button>
+                <button id="expandAllBtn" title="Expand All" aria-label="Expand all properties" class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-maximize-2"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg>
+                </button>
+                <button id="clearSchemaBtn" title="Clear Current Schema" aria-label="Clear the current schema" class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-sparkle"><path d="M21.29 14.7a2.43 2.43 0 0 0-2.64-.15l-2.64 1.32a2.43 2.43 0 0 1-2.64-.15L10.72 14a2.43 2.43 0 0 0-2.64.15L5.4 15.47a2.43 2.43 0 0 1-2.64.15L2 15.17V19a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-4.28Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M4 12V4a2 2 0 0 1 2-2h8"/><path d="M9.5 10.5 8 12l1.5 1.5"/><path d="m12 8-1.5 1.5L12 11"/></svg>
+                </button>
+                <button id="theme-toggle-btn" title="Toggle Dark/Light Mode" aria-label="Toggle Dark/Light Mode" class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors">
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Schema Tabs -->
+    <div id="schemaTabsContainer" class="flex items-center justify-between flex-shrink-0 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/70 overflow-x-auto">
+        <!-- Tabs will be rendered here by renderer.js -->
+    </div>
+
+    <!-- Scrollable Content Area -->
+    <div id="left-panel-scroller" class="flex-grow overflow-y-auto">
+        <div class="p-4 space-y-6">
+            <div class="space-y-4 p-4 bg-slate-100 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-800">
+                <h2 class="text-lg font-semibold text-slate-700 dark:text-slate-200">Schema Details</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="schemaTitle" id="schemaTitleLabel">Title</label>
+                        <input type="text" id="schemaTitle" placeholder="My Awesome Schema">
+                    </div>
+                    <div>
+                        <label for="rootSchemaTypeSelector">Root Type</label>
+                        <select id="rootSchemaTypeSelector">
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label for="schemaDescription">Description</label>
+                    <textarea id="schemaDescription" rows="3" placeholder="A detailed description of this schema's purpose."></textarea>
+                </div>
+                <div id="schemaPropertyToggleContainer" class="pt-2">
+                     <label class="flex items-center cursor-pointer">
+                        <input type="checkbox" id="includeSchemaToggle">
+                        <span class="ml-2 text-sm font-medium text-slate-600 dark:text-slate-300">Include <code>$schema</code> property</span>
+                    </label>
+                </div>
+            </div>
+
+            <div id="rootSchemaDefinitionContainer" class="space-y-4">
+                <div class="flex items-center justify-between">
+                     <h2 id="rootSchemaHeading" class="text-lg font-semibold text-slate-700 dark:text-slate-200">Root Schema Definition</h2>
+                     <button id="importRootPropertiesBtn" title="Import JSON for root properties" aria-label="Import JSON for root properties" class="p-1.5 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 transition-colors"></button>
+                </div>
+                <div id="rootActionControls" class="flex gap-2"></div>
+                <div id="schemaBuilderRoot" class="space-y-4"></div>
+            </div>
+            
+            <div class="space-y-4 p-4 bg-slate-100 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-800">
+                 <h2 class="text-lg font-semibold text-slate-700 dark:text-slate-200 flex items-center gap-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-amber-500"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path><path d="M5 3v4"></path><path d="M19 17v4"></path><path d="M3 5h4"></path><path d="M17 19h4"></path></svg>
+                      Reusable Definitions ($defs)
+                 </h2>
+                <div id="definitionsBuilderRoot" class="space-y-4"></div>
+                <button id="addDefinitionBtn" class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-amber-600 rounded-md hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 dark:focus:ring-offset-slate-900 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    Add Definition
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

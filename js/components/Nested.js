@@ -2,16 +2,24 @@ import { ICONS } from '../config.js';
 import { renderItem } from './Item.js';
 import { handleAddNestedItem } from '../handlers/item.js';
 
+const BORDER_CLASSES = {
+    'object-properties': 'border-sky-500',
+    'array-items': 'border-teal-500',
+    'oneof-options': 'border-violet-500',
+    'defs-properties': 'border-amber-500',
+};
+
 export function renderNestedBuilder(items, containerClass, addBtnText, parentId, property, parentOptions = {}) {
+    // Expanded .nested-level classes
     const containerDiv = document.createElement('div');
-    containerDiv.className = `nested-level ${containerClass} space-y-4`;
+    const borderColorClass = BORDER_CLASSES[containerClass] || 'border-slate-300 dark:border-slate-700';
+    containerDiv.className = `ml-4 pl-4 border-l-2 mt-3 pt-3 space-y-4 ${borderColorClass}`;
     
     const itemsContainer = document.createElement('div');
     itemsContainer.className = 'space-y-4';
 
     if (items.length > 0) {
         items.forEach(nestedItem => {
-            // Pass down the parent's options, but override with specifics for this container
             const newOptions = { 
                 ...parentOptions,
                 isRootArrayItem: false,

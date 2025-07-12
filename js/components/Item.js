@@ -2,6 +2,10 @@ import { ICONS, FIELD_TYPES } from '../config.js';
 import { renderStringInputs, renderNumberInputs, renderArrayInputs, renderRefInputs } from './Inputs.js';
 import { renderNestedBuilder } from './Nested.js';
 
+const inputClasses = "w-full mt-1 p-2 text-sm rounded-md transition-all duration-200 shadow-inner bg-slate-100 border border-slate-300 placeholder-slate-400 text-slate-900 hover:border-slate-400 focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 focus:outline-none focus:bg-white dark:bg-slate-800 dark:border-slate-700 dark:placeholder-slate-500 dark:text-slate-200 dark:hover:border-slate-600 dark:focus:bg-slate-900 dark:focus:ring-indigo-500/50 dark:focus:border-indigo-500";
+const checkboxClasses = "h-4 w-4 rounded shrink-0 transition-colors duration-200 text-indigo-600 border-slate-400 bg-white focus:ring-1 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-white dark:border-slate-600 dark:bg-slate-700 dark:focus:ring-indigo-600 dark:focus:ring-offset-slate-900 dark:checked:bg-indigo-600";
+const labelClasses = "block text-xs font-medium text-slate-600 dark:text-slate-400";
+
 export function renderItem(item, options = {}) {
     const { 
         isRootArrayItem = false, 
@@ -13,7 +17,8 @@ export function renderItem(item, options = {}) {
     const isRoot = isRootArrayItem || isRootPrimitive;
     
     const itemDiv = document.createElement('div');
-    itemDiv.className = 'schema-item-card bg-white dark:bg-slate-800 p-4 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm';
+    // Expanded .schema-item-card classes
+    itemDiv.className = 'bg-white dark:bg-slate-800 p-4 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm transition-shadow ease-in-out duration-200';
     itemDiv.dataset.itemId = item.id;
     itemDiv.draggable = !isRoot;
 
@@ -44,7 +49,7 @@ export function renderItem(item, options = {}) {
     itemDiv.innerHTML = `
         <div ${canCollapse ? 'data-action="toggleCollapse"' : ''} class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-700 ${canCollapse ? 'cursor-pointer' : ''}">
             <div class="flex items-center gap-3 min-w-0">
-                ${!isRoot ? `<span class="drag-handle text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300" title="Drag to reorder">${ICONS.move}</span>` : ''}
+                ${!isRoot ? `<span class="cursor-grab text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300" title="Drag to reorder">${ICONS.move}</span>` : ''}
                 <h3 class="font-semibold truncate ${headerClass}" title="${headerText}">${headerText}</h3>
             </div>
             <div class="flex items-center gap-1 flex-shrink-0">
@@ -58,17 +63,17 @@ export function renderItem(item, options = {}) {
                 ` : ''}
             </div>
         </div>
-        <div class="collapsible-content ${item.isCollapsed ? 'collapsed' : ''} mt-4">
+        <div class="collapsible-content ${item.isCollapsed ? 'collapsed' : ''}" style="max-height: ${item.isCollapsed ? '0' : '2000px'}; margin-top: ${item.isCollapsed ? '0' : '1rem'};">
             <div class="space-y-4">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     ${!isOneOfOption && !isRoot ? `
                     <div>
-                        <label for="name_${item.id}">Name</label>
-                        <input type="text" id="name_${item.id}" data-property="name" value="${item.name || ''}" placeholder="${isDefinition ? 'DefinitionName' : 'fieldName'}">
+                        <label for="name_${item.id}" class="${labelClasses}">Name</label>
+                        <input type="text" id="name_${item.id}" data-property="name" value="${item.name || ''}" placeholder="${isDefinition ? 'DefinitionName' : 'fieldName'}" class="${inputClasses}">
                     </div>` : '<div class="hidden md:block"></div>'}
                     <div>
-                        <label for="type_${item.id}">Type</label>
-                        <select id="type_${item.id}" data-property="type">${typeOptions}</select>
+                        <label for="type_${item.id}" class="${labelClasses}">Type</label>
+                        <select id="type_${item.id}" data-property="type" class="${inputClasses}">${typeOptions}</select>
                     </div>
                 </div>
                 <div id="type_specific_${item.id}" class="space-y-4"></div>
@@ -82,17 +87,17 @@ export function renderItem(item, options = {}) {
     } else {
         typeSpecificDiv.innerHTML = `
             <div>
-                <label for="desc_${item.id}">Description</label>
-                <textarea id="desc_${item.id}" data-property="description" rows="2" placeholder="Field description...">${item.description || ''}</textarea>
+                <label for="desc_${item.id}" class="${labelClasses}">Description</label>
+                <textarea id="desc_${item.id}" data-property="description" rows="2" placeholder="Field description..." class="${inputClasses}">${item.description || ''}</textarea>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                    <label for="default_${item.id}">Default Value (JSON)</label>
-                    <textarea id="default_${item.id}" data-property="defaultValue" rows="2" placeholder='"a string", 42, true' class="font-mono">${item.defaultValue || ''}</textarea>
+                    <label for="default_${item.id}" class="${labelClasses}">Default Value (JSON)</label>
+                    <textarea id="default_${item.id}" data-property="defaultValue" rows="2" placeholder='"a string", 42, true' class="font-mono ${inputClasses}">${item.defaultValue || ''}</textarea>
                 </div>
                 <div>
-                    <label for="const_${item.id}">Constant Value (JSON)</label>
-                    <textarea id="const_${item.id}" data-property="constValue" rows="2" placeholder='"USA", 100, false' class="font-mono">${item.constValue || ''}</textarea>
+                    <label for="const_${item.id}" class="${labelClasses}">Constant Value (JSON)</label>
+                    <textarea id="const_${item.id}" data-property="constValue" rows="2" placeholder='"USA", 100, false' class="font-mono ${inputClasses}">${item.constValue || ''}</textarea>
                 </div>
             </div>
             ${item.type === 'string' ? renderStringInputs(item) : ''}
@@ -100,8 +105,8 @@ export function renderItem(item, options = {}) {
             ${item.type === 'array' ? renderArrayInputs(item) : ''}
             ${!isOneOfOption && !isRoot && !isDefinition ? `
             <div class="flex items-center pt-2">
-                <input type="checkbox" id="required_${item.id}" data-property="required" ${item.required ? 'checked' : ''}>
-                <label for="required_${item.id}" class="ml-2 text-sm text-slate-700 dark:text-slate-300">Is Required?</label>
+                <input type="checkbox" id="required_${item.id}" data-property="required" ${item.required ? 'checked' : ''} class="${checkboxClasses}">
+                <label for="required_${item.id}" class="ml-2 text-sm text-slate-700 dark:text-slate-300 ${labelClasses}">Is Required?</label>
             </div>` : ''}`;
     }
 
@@ -114,5 +119,17 @@ export function renderItem(item, options = {}) {
         nestedBuilder.appendChild(renderNestedBuilder(item.oneOfSchemas, 'oneof-options', 'Option', item.id, 'oneOfSchemas', options));
     }
     
+    // Set max-height for smooth collapse/expand transition
+    const collapsible = itemDiv.querySelector('.collapsible-content');
+    if (collapsible && !item.isCollapsed) {
+        // Use scrollHeight to set an appropriate max-height for the content to expand into
+        setTimeout(() => {
+            collapsible.style.maxHeight = `${collapsible.scrollHeight}px`;
+        }, 0);
+    } else if (collapsible) {
+        collapsible.style.maxHeight = '0px';
+    }
+
+
     return itemDiv;
 }

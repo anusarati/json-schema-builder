@@ -1,0 +1,24 @@
+<!-- Import Modal -->
+<div id="importModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden modal-backdrop">
+    <div class="relative w-full max-w-2xl bg-white dark:bg-slate-900 rounded-lg shadow-xl" id="importModalContent">
+        <div class="p-6">
+            <div class="flex justify-between items-center mb-4 pb-4 border-b border-slate-200 dark:border-slate-800">
+                <h3 id="importModalTitle" class="text-xl font-semibold text-slate-800 dark:text-slate-100">Import Schema</h3>
+                <button id="closeImportModalBtn" aria-label="Close import modal" class="p-1 rounded-full text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            <p id="importModalDescription" class="text-sm text-slate-500 dark:text-slate-400 mb-4">Paste your JSON schema below or upload a file. This will replace the schema in the currently active tab.</p>
+            <textarea id="importSchemaText" rows="10" class="font-mono text-sm" placeholder='{ "type": "object", ... }'></textarea>
+            <div class="mt-6 flex justify-between items-center">
+                <button id="importFileBtn" class="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-md hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                    Upload File
+                </button>
+                <input type="file" id="importFileInput" class="hidden" accept=".json">
+                <button id="parseSchemaBtn" class="px-6 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-slate-900 transition-colors">
+                    Parse and Load
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

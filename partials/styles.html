@@ -1,0 +1,101 @@
+@layer base {
+    body {
+        @apply font-sans bg-slate-50 text-slate-800;
+        @apply dark:bg-slate-950 dark:text-slate-300;
+    }
+    /* General input styling for consistency and dark mode */
+    input[type="text"], 
+    input[type="number"], 
+    select, 
+    textarea {
+        @apply w-full mt-1 p-2 text-sm rounded-md transition-all duration-200 shadow-inner;
+        /* Light mode styles */
+        @apply bg-slate-100 border border-slate-300 placeholder-slate-400 text-slate-900;
+        @apply hover:border-slate-400;
+        @apply focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 focus:outline-none focus:bg-white;
+        /* Dark mode styles */
+        @apply dark:bg-slate-800 dark:border-slate-700 dark:placeholder-slate-500 dark:text-slate-200;
+        @apply dark:hover:border-slate-600;
+        @apply dark:focus:bg-slate-900 dark:focus:ring-2 dark:focus:ring-indigo-500/50 dark:focus:border-indigo-500 dark:focus:outline-none;
+    }
+    input[type="checkbox"] {
+        @apply h-4 w-4 rounded shrink-0 transition-colors duration-200;
+        @apply text-indigo-600 border-slate-400 bg-white;
+        @apply focus:ring-1 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-white;
+        @apply dark:border-slate-600 dark:bg-slate-700;
+        @apply dark:focus:ring-indigo-600 dark:focus:ring-offset-slate-900;
+        @apply dark:checked:bg-indigo-600;
+    }
+    label {
+        @apply block text-xs font-medium text-slate-600 dark:text-slate-400;
+    }
+}
+
+/* Custom scrollbar for a polished look */
+::-webkit-scrollbar { @apply w-2 h-2; }
+::-webkit-scrollbar-track { @apply bg-slate-200 dark:bg-slate-800 rounded; }
+::-webkit-scrollbar-thumb { @apply bg-slate-400 dark:bg-slate-600 rounded; }
+::-webkit-scrollbar-thumb:hover { @apply bg-slate-500 dark:bg-slate-500; }
+
+/* Resizable panel handle */
+.resizer {
+    @apply flex-shrink-0 bg-slate-300 dark:bg-slate-800 cursor-col-resize z-10;
+    flex-basis: 6px;
+    transition: background-color 0.2s ease;
+}
+.resizer:hover {
+    @apply bg-indigo-500;
+}
+
+/* Card styles for schema items */
+.schema-item-card {
+    transition: box-shadow 0.2s ease-in-out, border-color 0.2s ease-in-out;
+}
+
+/* Styling for nested levels to create visual hierarchy */
+.nested-level {
+    @apply ml-4 pl-4 border-l-2 mt-3 pt-3;
+    @apply border-slate-300 dark:border-slate-700;
+}
+
+/* Specific border colors for different complex types */
+.nested-level.object-properties { @apply border-sky-500; }
+.nested-level.array-items { @apply border-teal-500; }
+.nested-level.oneof-options { @apply border-violet-500; }
+.nested-level.defs-properties { @apply border-amber-500; }
+
+/* Drag & Drop visual feedback */
+.drag-handle { @apply cursor-grab; }
+.dragging {
+    @apply opacity-50 bg-indigo-100 dark:bg-indigo-900/50;
+}
+.drop-zone-active {
+    @apply outline-2 outline-dashed outline-indigo-500 -outline-offset-2;
+}
+
+/* Modal backdrop */
+.modal-backdrop {
+    @apply bg-black/50;
+    transition: opacity 0.3s ease;
+}
+
+/* Hide number input spinners */
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+  -webkit-appearance: none; 
+  margin: 0; 
+}
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+/* Collapsible content transition */
+.collapsible-content {
+    overflow: hidden;
+    transition: max-height 0.5s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.5s ease-in-out, margin-top 0.5s ease-in-out;
+}
+.collapsible-content.collapsed {
+    max-height: 0;
+    margin-top: 0 !important;
+    opacity: 0;
+}
