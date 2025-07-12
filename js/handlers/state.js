@@ -25,25 +25,40 @@ export function resetSchemaDefinitionForRootType() {
     const activeSchema = getActiveSchemaState();
     const type = activeSchema.rootSchemaType;
     activeSchema.nextId = 0; // Reset ID counter for a clean slate
-    if (type === 'object' || type === 'oneOf') {
+    if (type === 'object' || type === 'oneOf' || type === 'function') {
         activeSchema.schemaDefinition = [];
     } else if (type === 'array') {
         activeSchema.schemaDefinition = createSchemaItem({ type: 'string' });
     } else {
+        // Primitives like string, number, etc.
         activeSchema.schemaDefinition = createSchemaItem({ type });
     }
 }
 
 export function handleRootTypeChange(e) {
-    getActiveSchemaState().rootSchemaType = e.target.value;
-    resetSchemaDefinitionForRootType();
+    const activeSchema = getActiveSchemaState();
+    const oldType = activeSchema.rootSchemaType;
+    const newType = e.target.value;
+
+    // Gracefully handle conversion between object and function, as they share
+    // the same underlying structure for their properties/parameters.
+    if ((oldType === 'object' && newType === 'function') || (oldType === 'function' && newType === 'object')) {
+        activeSchema.rootSchemaType = newType;
+    } else {
+        // For all other type changes, reset the definition to a clean slate.
+        activeSchema.rootSchemaType = newType;
+        resetSchemaDefinitionForRootType();
+    }
+    
     render();
 }
 
 export function handleClearSchema() {
     if (confirm('Are you sure you want to clear the current schema and start over? This cannot be undone.')) {
-        // Reset current schema to default state, including title and description.
-        appState.schemas[appState.activeSchemaIndex] = createDefaultSchemaState();
+        const currentType = getActiveSchemaState().rootSchemaType;
+        const newDefault = createDefaultSchemaState();
+        newDefault.rootSchemaType = currentType; // Preserve the selected root type
+        appState.schemas[appState.activeSchemaIndex] = newDefault;
         
         resetSchemaDefinitionForRootType();
         render();

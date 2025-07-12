@@ -61,6 +61,7 @@ function renderRootControls() {
     let btnText = '';
     if (activeSchema.rootSchemaType === 'object') btnText = 'Add Root Property';
     else if (activeSchema.rootSchemaType === 'oneOf') btnText = 'Add Root Option';
+    else if (activeSchema.rootSchemaType === 'function') btnText = 'Add Parameter';
     
     if (btnText) {
         const addBtn = document.createElement('button');
@@ -72,28 +73,37 @@ function renderRootControls() {
 }
 
 export function render() {
-    renderTabs(); // Render tabs first
+    renderTabs();
 
     const activeSchema = getActiveSchemaState();
     if (!activeSchema) {
-        // This case should be handled by getActiveSchemaState, but as a fallback:
         dom.leftPanelScroller.classList.add('hidden');
         generateAndDisplaySchema();
         return;
     }
     dom.leftPanelScroller.classList.remove('hidden');
 
+    const isFunctionMode = activeSchema.rootSchemaType === 'function';
+
+    // Update global schema details
     dom.schemaTitle.value = activeSchema.title;
     dom.schemaDescription.value = activeSchema.description;
     dom.rootSchemaTypeSelector.value = activeSchema.rootSchemaType;
-    
+    dom.schemaTitleLabel.textContent = isFunctionMode ? 'Function Name' : 'Title';
+    dom.schemaTitle.placeholder = isFunctionMode ? 'e.g. get_current_weather' : 'My Awesome Schema';
+    dom.rootSchemaHeading.textContent = isFunctionMode ? 'Function Parameters' : 'Root Schema Definition';
+
     renderRootControls();
     dom.schemaBuilderRoot.innerHTML = '';
-    if (['object', 'oneOf'].includes(activeSchema.rootSchemaType)) {
+    
+    const rootItemOptions = { isFunctionParameter: isFunctionMode };
+
+    if (['object', 'oneOf', 'function'].includes(activeSchema.rootSchemaType)) {
         if(activeSchema.schemaDefinition.length > 0) {
-            activeSchema.schemaDefinition.forEach(item => dom.schemaBuilderRoot.appendChild(renderItem(item)));
+            activeSchema.schemaDefinition.forEach(item => dom.schemaBuilderRoot.appendChild(renderItem(item, rootItemOptions)));
         } else {
-            dom.schemaBuilderRoot.innerHTML = `<div class="text-center py-8 text-slate-500 dark:text-slate-500">No ${activeSchema.rootSchemaType === 'object' ? 'properties' : 'options'} defined.</div>`;
+            const emptyText = isFunctionMode ? 'parameters' : (activeSchema.rootSchemaType === 'object' ? 'properties' : 'options');
+            dom.schemaBuilderRoot.innerHTML = `<div class="text-center py-8 text-slate-500 dark:text-slate-500">No ${emptyText} defined.</div>`;
         }
     } else if (activeSchema.rootSchemaType === 'array') {
         dom.schemaBuilderRoot.appendChild(renderItem(activeSchema.schemaDefinition, { isRootArrayItem: true }));

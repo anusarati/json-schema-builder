@@ -3,7 +3,13 @@ import { renderStringInputs, renderNumberInputs, renderArrayInputs, renderRefInp
 import { renderNestedBuilder } from './Nested.js';
 
 export function renderItem(item, options = {}) {
-    const { isRootArrayItem = false, isRootPrimitive = false, isDefinition = false, isOneOfOption = false } = options;
+    const { 
+        isRootArrayItem = false, 
+        isRootPrimitive = false, 
+        isDefinition = false, 
+        isOneOfOption = false,
+        isFunctionParameter = false 
+    } = options;
     const isRoot = isRootArrayItem || isRootPrimitive;
     
     const itemDiv = document.createElement('div');
@@ -13,20 +19,26 @@ export function renderItem(item, options = {}) {
 
     const isRef = item.type === '$ref';
     const canCollapse = !isRoot;
+    const canImportProperty = ['object', 'array', 'oneOf'].includes(item.type) && !isRef;
+    const canCopyProperty = !isRoot && !isOneOfOption;
 
     let headerText = item.name || '(unnamed)';
     let headerClass = 'text-slate-800 dark:text-slate-100';
     if (isDefinition) {
         headerText = item.name || '(unnamed definition)';
         headerClass = 'text-amber-600 dark:text-amber-400';
-    } else if (isRootArrayItem) headerText = 'Array Item Schema';
-    else if (isRootPrimitive) headerText = 'Root Schema Details';
-    else if (isOneOfOption) {
+    } else if (isFunctionParameter) {
+        headerText = item.name || '(unnamed parameter)';
+    } else if (isRootArrayItem) {
+        headerText = 'Array Item Schema';
+    } else if (isRootPrimitive) {
+        headerText = 'Root Schema Details';
+    } else if (isOneOfOption) {
         headerText = `oneOf Option (Type: ${isRef ? 'Reference' : item.type})`;
         headerClass = 'text-violet-600 dark:text-violet-400';
     }
 
-    const availableTypes = isOneOfOption ? FIELD_TYPES.all.filter(t => t !== 'oneOf') : FIELD_TYPES.all;
+    const availableTypes = isOneOfOption || isFunctionParameter ? FIELD_TYPES.all : FIELD_TYPES.all.filter(t => t !== 'function');
     const typeOptions = availableTypes.map(t => `<option value="${t}" ${item.type === t ? 'selected' : ''}>${t}</option>`).join('');
     
     itemDiv.innerHTML = `
@@ -36,6 +48,8 @@ export function renderItem(item, options = {}) {
                 <h3 class="font-semibold truncate ${headerClass}" title="${headerText}">${headerText}</h3>
             </div>
             <div class="flex items-center gap-1 flex-shrink-0">
+                ${canImportProperty ? `<button data-action="import-property" title="Import JSON for this property" aria-label="Import JSON for this property" class="p-1.5 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 transition-colors">${ICONS.import}</button>` : ''}
+                ${canCopyProperty ? `<button data-action="copy-json" title="Copy property JSON" aria-label="Copy property JSON" class="p-1.5 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 transition-colors">${ICONS.copy}</button>` : ''}
                 ${canCollapse ? `<span class="p-1.5 text-slate-500 dark:text-slate-400 transition-transform duration-200 ${item.isCollapsed ? '' : 'rotate-180'}">${ICONS.chevronUp}</span>` : ''}
                 ${!isRoot ? `
                 <button data-action="moveUp" title="Move Up" aria-label="Move field up" class="p-1.5 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 transition-colors">${ICONS.chevronUp}</button>
@@ -93,11 +107,11 @@ export function renderItem(item, options = {}) {
 
     const nestedBuilder = itemDiv.querySelector(`#nested_builder_${item.id}`);
     if (item.type === 'object') {
-        nestedBuilder.appendChild(renderNestedBuilder(item.properties, 'object-properties', 'Property', item.id, 'properties'));
+        nestedBuilder.appendChild(renderNestedBuilder(item.properties, 'object-properties', 'Property', item.id, 'properties', options));
     } else if (item.type === 'array' && item.items) {
-        nestedBuilder.appendChild(renderNestedBuilder([item.items], 'array-items', 'Item Schema', null, null));
+        nestedBuilder.appendChild(renderNestedBuilder([item.items], 'array-items', null, null, null, options));
     } else if (item.type === 'oneOf') {
-        nestedBuilder.appendChild(renderNestedBuilder(item.oneOfSchemas, 'oneof-options', 'Option', item.id, 'oneOfSchemas'));
+        nestedBuilder.appendChild(renderNestedBuilder(item.oneOfSchemas, 'oneof-options', 'Option', item.id, 'oneOfSchemas', options));
     }
     
     return itemDiv;

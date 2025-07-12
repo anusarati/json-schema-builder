@@ -1,9 +1,10 @@
 import { dom } from '../dom.js';
 import { appState, getActiveSchemaState } from '../state.js';
 import { ICONS, FIELD_TYPES } from '../config.js';
-import { showToast } from '../utils.js';
+import { showToast, findItemAndParent } from '../utils.js';
 import { createSchemaItem, mapJsonToInternal } from '../schema.js';
 import { render } from '../renderer.js';
+import { handleParseProperty, handleParseRootProperties } from './item.js';
 
 export async function handleCopySchema() {
     const schemaText = dom.schemaOutput.textContent;
@@ -32,16 +33,87 @@ export function handleExportSchema() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${activeSchema.title.replace(/[\s/]/g, '_') || 'schema'}.json`;
+    a.download = `${(activeSchema.title || 'schema').replace(/[\s/]/g, '_')}.json`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
 }
 
-export function toggleImportModal(show = true) {
+function toggleImportModal(show = true) {
     dom.importModal.classList.toggle('hidden', !show);
 }
+
+export function closeImportModal() {
+    toggleImportModal(false);
+    appState.importTargetItemId = null; // Clear any property-level target
+    dom.importSchemaText.value = ''; // Clear textarea
+}
+
+export function openRootImportModal() {
+    appState.importTargetItemId = null;
+    dom.importModalTitle.textContent = 'Import Full Schema';
+    dom.importModalDescription.textContent = 'Paste a full JSON schema or OpenAI function definition. This will replace the entire schema in the current tab.';
+    dom.importSchemaText.placeholder = '{ "type": "function", "function": { ... } }';
+    toggleImportModal(true);
+}
+
+export function handleOpenRootPropertiesImport() {
+    const activeSchema = getActiveSchemaState();
+    const rootType = activeSchema.rootSchemaType;
+
+    if (!['object', 'function', 'oneOf', 'array'].includes(rootType)) {
+        showToast(`Cannot import properties for root type '${rootType}'.`, 'error');
+        return;
+    }
+
+    appState.importTargetItemId = 'root';
+    dom.importModalTitle.textContent = `Import Root ${rootType === 'function' ? 'Parameters' : 'Properties'}`;
+
+    let description = '';
+    let placeholder = '';
+    if (rootType === 'object' || rootType === 'function') {
+        description = 'Paste a JSON object containing the properties/parameters to use for this schema.';
+        placeholder = `{ "property_name": { "type": "string" } }`;
+    } else if (rootType === 'oneOf') {
+        description = 'Paste a JSON array containing the schema options for the root \`oneOf\`.';
+        placeholder = '[{ "type": "string" }, { "type": "number" }]';
+    } else if (rootType === 'array') {
+        description = 'Paste a JSON object representing the schema for the items in the root array.';
+        placeholder = '{ "type": "string", "description": "An item in the array" }';
+    }
+
+    dom.importModalDescription.textContent = description;
+    dom.importSchemaText.placeholder = placeholder;
+    toggleImportModal(true);
+}
+
+
+export function handleOpenPropertyImport(itemId) {
+    const found = findItemAndParent(itemId);
+    if (!found) return;
+    
+    appState.importTargetItemId = itemId;
+    dom.importModalTitle.textContent = `Import for '${found.item.name || 'unnamed'}'`;
+    let placeholder = '';
+    let description = '';
+
+    if (found.item.type === 'object') {
+        description = 'Paste a JSON object containing the properties to add to this object.';
+        placeholder = `{ "new_property": { "type": "string" } }`;
+    } else if (found.item.type === 'array') {
+        description = 'Paste a JSON object representing the schema for items in this array.';
+        placeholder = '{ "type": "number" }';
+    } else if (found.item.type === 'oneOf') {
+        description = 'Paste a JSON array containing the schema options for this oneOf property.';
+        placeholder = '[{ "type": "string" }, { "type": "number" }]';
+    }
+
+    dom.importModalDescription.textContent = description;
+    dom.importSchemaText.placeholder = placeholder;
+    toggleImportModal(true);
+}
+
 
 export function handleImportFile(event) {
     const file = event.target.files[0];
@@ -54,42 +126,58 @@ export function handleImportFile(event) {
         reader.onerror = () => showToast(`Error reading file.`, "error");
         reader.readAsText(file);
     }
+    event.target.value = '';
 }
 
 function parseAndLoadRootSchema(schema) {
     const activeSchema = getActiveSchemaState();
     
     activeSchema.nextId = 0;
-    activeSchema.title = schema.title || 'Imported Schema';
-    activeSchema.description = schema.description || '';
     activeSchema.definitions = [];
     
-    if (schema.$defs) {
-        activeSchema.definitions = Object.entries(schema.$defs).map(([name, defSchema]) => 
-            mapJsonToInternal(defSchema, {name, isDefinition: true}));
-    }
-
-    if (schema.oneOf) {
-        activeSchema.rootSchemaType = 'oneOf';
-        activeSchema.schemaDefinition = schema.oneOf.map(s => mapJsonToInternal(s));
-    } else if (schema.type === 'object' || (!schema.type && schema.properties)) {
-        activeSchema.rootSchemaType = 'object';
-        const required = schema.required || [];
-        activeSchema.schemaDefinition = schema.properties ? Object.entries(schema.properties).map(([name, propSchema]) => 
+    if (schema.type === 'function' && schema.function) {
+        activeSchema.rootSchemaType = 'function';
+        activeSchema.title = schema.function.name || 'Imported Function';
+        activeSchema.description = schema.function.description || '';
+        
+        const params = schema.function.parameters || { type: 'object', properties: {} };
+        const required = params.required || [];
+        activeSchema.schemaDefinition = params.properties ? Object.entries(params.properties).map(([name, propSchema]) => 
             mapJsonToInternal(propSchema, { name, required: required.includes(name) })) : [];
-    } else if (schema.type === 'array') {
-        activeSchema.rootSchemaType = 'array';
-        activeSchema.schemaDefinition = schema.items ? mapJsonToInternal(schema.items) : createSchemaItem({type: 'string'});
-    } else if (FIELD_TYPES.root.includes(schema.type)) {
-        activeSchema.rootSchemaType = schema.type;
-        activeSchema.schemaDefinition = mapJsonToInternal(schema);
-    } else {
-        // Fallback for schemas without a defined type but with other properties
-        activeSchema.rootSchemaType = 'object';
-        activeSchema.schemaDefinition = [];
-        showToast("Imported schema has an unknown root type, defaulting to object.", "error");
+        
+        if (params.$defs) {
+            activeSchema.definitions = Object.entries(params.$defs).map(([name, defSchema]) => 
+                mapJsonToInternal(defSchema, {name, isDefinition: true}));
+        }
+    } else { 
+        activeSchema.title = schema.title || 'Imported Schema';
+        activeSchema.description = schema.description || '';
+        
+        if (schema.$defs) {
+            activeSchema.definitions = Object.entries(schema.$defs).map(([name, defSchema]) => 
+                mapJsonToInternal(defSchema, {name, isDefinition: true}));
+        }
+
+        if (schema.oneOf) {
+            activeSchema.rootSchemaType = 'oneOf';
+            activeSchema.schemaDefinition = schema.oneOf.map(s => mapJsonToInternal(s));
+        } else if (schema.type === 'object' || (!schema.type && schema.properties)) {
+            activeSchema.rootSchemaType = 'object';
+            const required = schema.required || [];
+            activeSchema.schemaDefinition = schema.properties ? Object.entries(schema.properties).map(([name, propSchema]) => 
+                mapJsonToInternal(propSchema, { name, required: required.includes(name) })) : [];
+        } else if (schema.type === 'array') {
+            activeSchema.rootSchemaType = 'array';
+            activeSchema.schemaDefinition = schema.items ? mapJsonToInternal(schema.items) : createSchemaItem({type: 'string'});
+        } else if (FIELD_TYPES.root.includes(schema.type)) {
+            activeSchema.rootSchemaType = schema.type;
+            activeSchema.schemaDefinition = mapJsonToInternal(schema);
+        } else {
+            activeSchema.rootSchemaType = 'object';
+            activeSchema.schemaDefinition = [];
+            showToast("Imported schema has an unknown root type, defaulting to object.", "error");
+        }
     }
-    render();
 }
 
 export function handleParseAndLoad() {
@@ -99,17 +187,31 @@ export function handleParseAndLoad() {
         return;
     }
 
-    if (!confirm('Importing a new schema will replace the content of the current tab. Are you sure?')) {
-        return;
-    }
-
     try {
-        const importedObj = JSON.parse(schemaStr);
-        parseAndLoadRootSchema(importedObj);
-        showToast("Schema imported successfully!");
-        toggleImportModal(false);
-        dom.importSchemaText.value = '';
+        if (appState.importTargetItemId) {
+            if (appState.importTargetItemId === 'root') {
+                handleParseRootProperties(schemaStr);
+                const rootType = getActiveSchemaState().rootSchemaType;
+                showToast(`Root ${rootType === 'function' ? 'parameters' : 'properties'} imported successfully.`, "success");
+            } else {
+                const targetId = appState.importTargetItemId;
+                handleParseProperty(targetId, schemaStr);
+                const found = findItemAndParent(targetId);
+                showToast(`Properties imported successfully for '${found.item.name || found.item.type}'.`, "success");
+            }
+            render();
+            closeImportModal();
+        } else {
+            if (!confirm('Importing a new schema will replace the content of the current tab. Are you sure?')) {
+                return;
+            }
+            const importedObj = JSON.parse(schemaStr);
+            parseAndLoadRootSchema(importedObj);
+            render();
+            showToast("Schema imported successfully!");
+            closeImportModal();
+        }
     } catch (error) {
-        showToast(`Error parsing schema: ${error.message}`, "error");
+        showToast(`Import failed: ${error.message}`, "error");
     }
 }

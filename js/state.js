@@ -16,6 +16,7 @@ const initialState = {
     schemas: [createDefaultSchemaState()],
     activeSchemaIndex: 0,
     draggedItemId: null,
+    importTargetItemId: null, // To track which item is being imported into
 };
 
 const loadedState = loadState();

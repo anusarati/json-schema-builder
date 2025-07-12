@@ -2,19 +2,30 @@ import { ICONS } from '../config.js';
 import { renderItem } from './Item.js';
 import { handleAddNestedItem } from '../handlers/item.js';
 
-export function renderNestedBuilder(items, containerClass, addBtnText, parentId, property) {
+export function renderNestedBuilder(items, containerClass, addBtnText, parentId, property, parentOptions = {}) {
     const containerDiv = document.createElement('div');
     containerDiv.className = `nested-level ${containerClass} space-y-4`;
+    
+    const itemsContainer = document.createElement('div');
+    itemsContainer.className = 'space-y-4';
 
     if (items.length > 0) {
         items.forEach(nestedItem => {
-            const options = { isOneOfOption: containerClass === 'oneof-options' };
-            containerDiv.appendChild(renderItem(nestedItem, options));
+            // Pass down the parent's options, but override with specifics for this container
+            const newOptions = { 
+                ...parentOptions,
+                isRootArrayItem: false,
+                isRootPrimitive: false,
+                isOneOfOption: containerClass === 'oneof-options',
+            };
+            itemsContainer.appendChild(renderItem(nestedItem, newOptions));
         });
-    } else if(addBtnText) {
+    } else if (addBtnText) {
         const emptyText = addBtnText === 'Property' ? 'properties' : `${addBtnText.toLowerCase()}s`;
-        containerDiv.innerHTML = `<div class="text-center py-4 text-sm text-slate-500 dark:text-slate-400">No ${emptyText} added.</div>`;
+        itemsContainer.innerHTML = `<div class="text-center py-4 text-sm text-slate-500 dark:text-slate-400">No ${emptyText} added.</div>`;
     }
+    
+    containerDiv.appendChild(itemsContainer);
 
     if (addBtnText && parentId && property) {
         const addBtn = document.createElement('button');

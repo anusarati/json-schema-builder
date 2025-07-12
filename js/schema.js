@@ -46,7 +46,7 @@ export function createSchemaItem(initialData = {}) {
     return item;
 }
 
-function buildSchemaFromItem(item) {
+export function buildSchemaFromItem(item) {
     let schema = {};
     
     if (item.type === '$ref') {
@@ -122,26 +122,65 @@ export function generateAndDisplaySchema() {
         hljs.highlightElement(dom.schemaOutput);
         return;
     }
-
-    let finalSchema = { "$schema": "http://json-schema.org/draft-2020-12/schema#" };
-    if (activeSchema.title) finalSchema.title = activeSchema.title;
-    if (activeSchema.description) finalSchema.description = activeSchema.description;
-
-    const rootItem = {
-        type: activeSchema.rootSchemaType,
-        properties: activeSchema.rootSchemaType === 'object' ? activeSchema.schemaDefinition : [],
-        items: activeSchema.rootSchemaType === 'array' ? activeSchema.schemaDefinition : null,
-        oneOfSchemas: activeSchema.rootSchemaType === 'oneOf' ? activeSchema.schemaDefinition : [],
-        ...((!['object', 'array', 'oneOf'].includes(activeSchema.rootSchemaType)) ? activeSchema.schemaDefinition : {})
-    };
-    Object.assign(finalSchema, buildSchemaFromItem(rootItem));
-
-    if (activeSchema.definitions.length > 0) {
-        finalSchema.$defs = {};
-        activeSchema.definitions.forEach(def => {
-            if (def.name) finalSchema.$defs[def.name] = buildSchemaFromItem(def);
+    
+    let finalSchema;
+    
+    if (activeSchema.rootSchemaType === 'function') {
+        const parameters = {
+            type: 'object',
+            properties: {}
+        };
+        const requiredFields = [];
+        
+        activeSchema.schemaDefinition.forEach(prop => {
+            if (prop.name) {
+                parameters.properties[prop.name] = buildSchemaFromItem(prop);
+                if (prop.required) requiredFields.push(prop.name);
+            }
         });
-        if (Object.keys(finalSchema.$defs).length === 0) delete finalSchema.$defs;
+
+        if (requiredFields.length > 0) {
+            parameters.required = requiredFields;
+        }
+
+        if (activeSchema.definitions.length > 0) {
+            parameters.$defs = {};
+            activeSchema.definitions.forEach(def => {
+                if (def.name) parameters.$defs[def.name] = buildSchemaFromItem(def);
+            });
+            if (Object.keys(parameters.$defs).length === 0) delete parameters.$defs;
+        }
+
+        finalSchema = {
+            type: 'function',
+            function: {
+                name: activeSchema.title || 'unnamed_function',
+                description: activeSchema.description || '',
+                parameters: parameters,
+            }
+        };
+
+    } else {
+        finalSchema = { "$schema": "http://json-schema.org/draft-2020-12/schema#" };
+        if (activeSchema.title) finalSchema.title = activeSchema.title;
+        if (activeSchema.description) finalSchema.description = activeSchema.description;
+
+        const rootItem = {
+            type: activeSchema.rootSchemaType,
+            properties: activeSchema.rootSchemaType === 'object' ? activeSchema.schemaDefinition : [],
+            items: activeSchema.rootSchemaType === 'array' ? activeSchema.schemaDefinition : null,
+            oneOfSchemas: activeSchema.rootSchemaType === 'oneOf' ? activeSchema.schemaDefinition : [],
+            ...((!['object', 'array', 'oneOf'].includes(activeSchema.rootSchemaType)) ? activeSchema.schemaDefinition : {})
+        };
+        Object.assign(finalSchema, buildSchemaFromItem(rootItem));
+
+        if (activeSchema.definitions.length > 0) {
+            finalSchema.$defs = {};
+            activeSchema.definitions.forEach(def => {
+                if (def.name) finalSchema.$defs[def.name] = buildSchemaFromItem(def);
+            });
+            if (Object.keys(finalSchema.$defs).length === 0) delete finalSchema.$defs;
+        }
     }
 
     const newCode = document.createElement('code');
@@ -153,7 +192,6 @@ export function generateAndDisplaySchema() {
     dom.schemaOutput = newCode;
     hljs.highlightElement(dom.schemaOutput);
 
-    // Persist the state after every successful generation
     saveState(appState);
 }
 
