@@ -17,8 +17,8 @@ export function renderItem(item, options = {}) {
     const isRoot = isRootArrayItem || isRootPrimitive;
     
     const itemDiv = document.createElement('div');
-    // Expanded .schema-item-card classes
-    itemDiv.className = 'bg-white dark:bg-slate-800 p-4 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm transition-shadow ease-in-out duration-200';
+    // FIX: Restored the essential 'schema-item-card' class for event handling.
+    itemDiv.className = 'schema-item-card bg-white dark:bg-slate-800 p-4 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm transition-shadow ease-in-out duration-200';
     itemDiv.dataset.itemId = item.id;
     itemDiv.draggable = !isRoot;
 
