@@ -1,0 +1,132 @@
+{
+  "type": "function",
+  "function": {
+    "name": "publish_blog_post",
+    "description": "Publishes a new blog post to the website, including content, tags, metadata, and advanced publication options.",
+    "parameters": {
+      "$defs": {
+        "author_details": {
+          "type": "object",
+          "properties": {
+            "author_id": {
+              "type": "string",
+              "description": "The unique identifier for the author.",
+              "pattern": "^user_[a-zA-Z0-9]+$"
+            },
+            "author_handle": {
+              "type": "string",
+              "description": "The author's public handle or username."
+            }
+          },
+          "required": [
+            "author_id"
+          ]
+        }
+      },
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "The main title of the blog post.",
+          "minLength": 5,
+          "maxLength": 100
+        },
+        "content_markdown": {
+          "type": "string",
+          "description": "The full content of the post, written in Markdown."
+        },
+        "author": {
+          "description": "Details of the post's author, referencing a reusable definition.",
+          "$ref": "#/$defs/author_details"
+        },
+        "tags": {
+          "type": "array",
+          "description": "A list of tags or keywords associated with the post.",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "maxLength": 25
+          }
+        },
+        "publication_details": {
+          "type": "object",
+          "description": "Settings related to when and how the post is published.",
+          "properties": {
+            "visibility": {
+              "type": "string",
+              "description": "The visibility level of the post.",
+              "enum": [
+                "public",
+                "private",
+                "unlisted"
+              ],
+              "default": "public"
+            },
+            "publish_date": {
+              "type": "string",
+              "description": "An ISO 8601 timestamp for scheduled publication. If omitted, the post is published immediately.",
+              "format": "date-time"
+            }
+          }
+        },
+        "notification_channel": {
+          "oneOf": [
+            {
+              "type": "object",
+              "title": "Webhook Notification",
+              "properties": {
+                "channel": {
+                  "type": "string",
+                  "const": "webhook"
+                },
+                "url": {
+                  "type": "string",
+                  "description": "The webhook URL to send a notification to.",
+                  "format": "uri"
+                }
+              },
+              "required": [
+                "channel",
+                "url"
+              ]
+            },
+            {
+              "type": "object",
+              "title": "Email Notification",
+              "properties": {
+                "channel": {
+                  "type": "string",
+                  "const": "email"
+                },
+                "address": {
+                  "type": "string",
+                  "description": "The email address to notify.",
+                  "format": "email"
+                }
+              },
+              "required": [
+                "channel",
+                "address"
+              ]
+            }
+          ],
+          "description": "The channel to send a notification to upon publication."
+        },
+        "priority": {
+          "type": "integer",
+          "description": "A priority level from 1 to 5, where 5 is the highest.",
+          "minimum": 1,
+          "maximum": 5,
+          "default": 3
+        }
+      },
+      "required": [
+        "title",
+        "content_markdown",
+        "author",
+        "tags"
+      ]
+    }
+  }
+}

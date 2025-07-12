@@ -3,6 +3,7 @@ export const dom = {};
 export function initDom() {
     Object.assign(dom, {
         themeToggleBtn: document.getElementById('theme-toggle-btn'),
+        densityToggleBtn: document.getElementById('density-toggle-btn'),
         clearSchemaBtn: document.getElementById('clearSchemaBtn'),
         collapseAllBtn: document.getElementById('collapseAllBtn'),
         expandAllBtn: document.getElementById('expandAllBtn'),

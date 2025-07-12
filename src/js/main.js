@@ -3,7 +3,7 @@ import { loadApp } from './loader.js'; // Correctly imports the 'loadApp' functi
 import { initDom, dom } from './dom.js';
 import { FIELD_TYPES, ICONS } from './config.js';
 import { render } from './renderer.js';
-import { handleCollapseAll, handleExpandAll, initResizablePanels, toggleTheme } from './handlers/ui.js';
+import { handleCollapseAll, handleExpandAll, initResizablePanels, toggleTheme, toggleDensity } from './handlers/ui.js';
 import { handleClearSchema, handleGlobalDetailChange, handleRootTypeChange, handleSchemaPropertyToggle } from './handlers/state.js';
 import { handleAddDefinition, handleDeleteItem, handleItemUpdate, handleMoveItem, handleToggleCollapse, handleCopyPropertyJson } from './handlers/item.js';
 import { handleCopySchema, handleExportSchema, handleImportFile, handleOpenPropertyImport, handleOpenRootPropertiesImport, handleParseAndLoad, closeImportModal, openRootImportModal } from './handlers/io.js';
@@ -11,11 +11,28 @@ import { handleDragEnd, handleDragLeave, handleDragOver, handleDragStart, handle
 
 function init() {
     dom.rootSchemaTypeSelector.innerHTML = FIELD_TYPES.root.map(t => `<option value="${t}">${t}</option>`).join('');
-    dom.themeToggleBtn.innerHTML = document.documentElement.classList.contains('dark') ? ICONS.sun : ICONS.moon;
+    
+    // Set initial UI states from localStorage
+    const isDark = document.documentElement.classList.contains('dark');
+    dom.themeToggleBtn.innerHTML = isDark ? ICONS.sun : ICONS.moon;
+    
+    // Corrected logic: The icon shows the state you will enter.
+    const savedDensity = localStorage.getItem('schemaBuilderDensity') || 'comfortable';
+    if (savedDensity === 'dense') {
+        dom.appRoot.classList.add('dense');
+        dom.densityToggleBtn.innerHTML = ICONS.densityComfortable;
+    } else if (savedDensity === 'compact') {
+        dom.appRoot.classList.add('compact');
+        dom.densityToggleBtn.innerHTML = ICONS.densityDense;
+    } else { // comfortable
+        dom.densityToggleBtn.innerHTML = ICONS.densityCompact;
+    }
+
     dom.importRootPropertiesBtn.innerHTML = ICONS.import;
     
     // --- Global Listeners ---
     dom.themeToggleBtn.addEventListener('click', toggleTheme);
+    dom.densityToggleBtn.addEventListener('click', toggleDensity);
     dom.clearSchemaBtn.addEventListener('click', handleClearSchema);
     dom.collapseAllBtn.addEventListener('click', handleCollapseAll);
     dom.expandAllBtn.addEventListener('click', handleExpandAll);

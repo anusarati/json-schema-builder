@@ -30,6 +30,32 @@ export function toggleTheme() {
     }
 }
 
+export function toggleDensity() {
+    const root = dom.appRoot;
+    let newDensity;
+
+    // Corrected logic: The icon shows the state you will enter.
+    if (root.classList.contains('dense')) {
+        // From DENSE -> COMFORTABLE
+        root.classList.remove('dense');
+        newDensity = 'comfortable';
+        dom.densityToggleBtn.innerHTML = ICONS.densityCompact; // Next click will go to compact
+    } else if (root.classList.contains('compact')) {
+        // From COMPACT -> DENSE
+        root.classList.remove('compact');
+        root.classList.add('dense');
+        newDensity = 'dense';
+        dom.densityToggleBtn.innerHTML = ICONS.densityComfortable; // Next click will go to comfortable
+    } else {
+        // From COMFORTABLE -> COMPACT
+        root.classList.add('compact');
+        newDensity = 'compact';
+        dom.densityToggleBtn.innerHTML = ICONS.densityDense; // Next click will go to dense
+    }
+
+    localStorage.setItem('schemaBuilderDensity', newDensity);
+}
+
 export function initResizablePanels() {
     const resizer = dom.resizer;
     if (!resizer) return; // Exit if resizer is not on the page (e.g. mobile)
@@ -99,6 +125,7 @@ export function handleCollapseAll() {
 export function handleExpandAll() {
     const activeSchema = getActiveSchemaState();
     setAllCollapsed(false, activeSchema.schemaDefinition);
+    // FIX: Corrected this line which was a duplicate of the one above.
     setAllCollapsed(false, activeSchema.definitions);
     render();
 }

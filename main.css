@@ -105,12 +105,13 @@ input[type=number] {
 }
 
 /* --- UI DENSITY STYLES (COMPACT) --- */
-.compact #left-panel > header { @apply p-3; }
-.compact #left-panel-scroller > div { @apply p-3; }
-.compact #left-panel-scroller > div > div { @apply p-3; }
-.compact .schema-item-card { @apply p-3; }
-
-.compact #left-panel-scroller > div { margin-top: 1rem; }
+.compact #left-panel-scroller > div,
+.compact .bg-slate-100,
+.compact .schema-item-card {
+    @apply p-3;
+}
+.compact .py-8 { @apply py-4; }
+.compact #left-panel-scroller > div > :not([hidden]) ~ :not([hidden]) { margin-top: 1rem; }
 .compact .bg-slate-100 > :not([hidden]) ~ :not([hidden]),
 .compact #rootSchemaDefinitionContainer > :not([hidden]) ~ :not([hidden]),
 .compact #schemaBuilderRoot > :not([hidden]) ~ :not([hidden]),
@@ -118,43 +119,54 @@ input[type=number] {
 .compact .schema-item-card .collapsible-content > div > :not([hidden]) ~ :not([hidden]) {
     margin-top: 0.75rem;
 }
-.compact .grid { gap: 0.75rem; }
-
 .compact h1 { font-size: 1.125rem; line-height: 1.75rem; }
 .compact h2 { font-size: 1rem; line-height: 1.5rem; }
 .compact h3 { font-size: 0.875rem; line-height: 1.25rem; @apply font-semibold; }
-.compact #left-panel > header p { font-size: 0.75rem; line-height: 1rem; }
-.compact #rootActionControls button, .compact #addDefinitionBtn { padding: 0.375rem 0.75rem; font-size: 0.75rem; }
+.compact h4 { font-size: 0.75rem; line-height: 1rem; @apply font-medium; }
+.compact header p { font-size: 0.75rem; line-height: 1rem; }
+.compact label { font-size: 11px; @apply font-medium; }
+.compact input[type="text"],
+.compact input[type="number"],
+.compact select,
+.compact textarea { font-size: 0.75rem; padding: 0.375rem; }
+.compact button.px-4 { padding-left: 0.75rem; padding-right: 0.75rem; }
+.compact button.py-2 { padding-top: 0.375rem; padding-bottom: 0.375rem; }
+.compact .gap-2 { gap: 0.375rem; }
+.compact .gap-3 { gap: 0.5rem; }
+.compact .gap-4 { gap: 0.75rem; }
+.compact .nested-level { @apply ml-3 pl-3; }
 
 /* --- UI DENSITY STYLES (DENSE) --- */
-.dense #left-panel > header { @apply p-2; }
-.dense #left-panel-scroller > div { @apply p-2; }
-.dense #left-panel-scroller > div > div { @apply p-2; }
-.dense .schema-item-card { @apply p-1.5; }
-.dense .schema-item-card > div:first-child { @apply pb-1.5; }
-
-.dense #left-panel-scroller > div > :not([hidden]) ~ :not([hidden]) { margin-top: 0.75rem; }
-.dense #rootSchemaDefinitionContainer { margin-top: 0.75rem !important; }
-.dense #schemaBuilderRoot > .schema-item-card:not([hidden]) ~ .schema-item-card:not([hidden]) {
-    margin-top: 0.375rem;
+.dense #left-panel-scroller > div,
+.dense .bg-slate-100,
+.dense .schema-item-card {
+    @apply p-2;
 }
-.dense #rootActionControls { margin-bottom: 0.5rem; }
+.dense .py-8 { @apply py-3; }
+.dense #left-panel-scroller > div > :not([hidden]) ~ :not([hidden]) { margin-top: 0.75rem; }
 .dense .bg-slate-100 > :not([hidden]) ~ :not([hidden]),
+.dense #rootSchemaDefinitionContainer > :not([hidden]) ~ :not([hidden]),
+.dense #schemaBuilderRoot > :not([hidden]) ~ :not([hidden]),
 .dense #definitionsBuilderRoot > :not([hidden]) ~ :not([hidden]),
 .dense .schema-item-card .collapsible-content > div > :not([hidden]) ~ :not([hidden]) {
     margin-top: 0.5rem;
 }
-.dense .grid { gap: 0.5rem; }
-
 .dense h1 { font-size: 1rem; line-height: 1.5rem; }
 .dense h2 { font-size: 0.875rem; line-height: 1.25rem; }
-.dense #left-panel > header p { display: none; }
-.dense h3 { font-size: 0.8rem; line-height: 1.1rem; @apply font-semibold; }
-.dense label { font-size: 10px; }
+.dense h3 { font-size: 0.875rem; line-height: 1.25rem; @apply font-semibold; }
+.dense h4 { font-size: 0.75rem; line-height: 1rem; @apply font-medium; }
+.dense header p { font-size: 0.75rem; line-height: 1rem; }
+.dense label { font-size: 10px; @apply font-medium; }
 .dense input[type="text"],
 .dense input[type="number"],
 .dense select,
 .dense textarea { font-size: 0.75rem; padding: 0.25rem; }
-.dense #rootActionControls button, .dense #addDefinitionBtn { padding: 0.25rem 0.5rem; font-size: 0.7rem; }
-.dense .nested-level { @apply ml-2 pl-2 mt-1.5 pt-1.5; }
-.dense .nested-level button { font-size: 0.65rem; padding: 0.125rem 0.375rem; }
+.dense button.px-4 { padding-left: 0.5rem; padding-right: 0.5rem; }
+.dense button.py-2 { padding-top: 0.25rem; padding-bottom: 0.25rem; }
+.dense button.px-3 { padding-left: 0.5rem; padding-right: 0.5rem; }
+.dense button.py-1.5 { padding-top: 0.25rem; padding-bottom: 0.25rem; }
+.dense .gap-1 { gap: 0.125rem; }
+.dense .gap-2 { gap: 0.25rem; }
+.dense .gap-3 { gap: 0.375rem; }
+.dense .gap-4 { gap: 0.5rem; }
+.dense .nested-level { @apply ml-2 pl-2; }
