@@ -4,10 +4,10 @@ import { dom } from './dom.js';
 export const createId = () => {
     const activeSchema = getActiveSchemaState();
     if (!activeSchema) {
-        // This is a fallback and should ideally never be hit.
         console.error("Could not get active schema to generate an ID.");
         return `item_error_${Date.now()}`; 
     }
+    // The 'nextId' is now correctly scoped to the active schema.
     return `item_${activeSchema.nextId++}`;
 };
 
@@ -42,62 +42,74 @@ export function showToast(message, type = 'success') {
     setTimeout(removeToast, 5000);
 }
 
-export function findItemAndParent(itemId, startNode) {
-    // If startNode is not provided, default to the active schema state.
-    const searchRoot = startNode || getActiveSchemaState();
-    if (!searchRoot) return null;
 
-    // Check top-level collections if we are at the root of a schema state.
-    if (searchRoot === getActiveSchemaState()) {
-        const collections = ['schemaDefinition', 'definitions'];
-        for (const collectionName of collections) {
-            const searchArray = searchRoot[collectionName];
+/**
+ * A dedicated recursive helper function. It only knows how to search *inside* an item.
+ * @param {string} itemId - The ID of the item to find.
+ * @param {object} currentItem - The item object to search within.
+ * @returns {object|null}
+ */
+function findRecursive(itemId, currentItem) {
+    if (!currentItem || typeof currentItem !== 'object') return null;
 
-            // Handle both array (object/oneOf) and object (array/primitive) root definitions
-            if (Array.isArray(searchArray)) {
-                for (let i = 0; i < searchArray.length; i++) {
-                    const item = searchArray[i];
-                    if (item.id === itemId) {
-                        return { item, parentArray: searchArray, index: i };
-                    }
-                    const foundInChildren = findItemAndParent(itemId, item);
-                    if (foundInChildren) return foundInChildren;
-                }
-            } else if (typeof searchArray === 'object' && searchArray !== null) {
-                if (searchArray.id === itemId) {
-                    // This case is tricky as it has no "parentArray".
-                    // It's the root item itself. The calling logic must handle this.
-                    return { item: searchArray, parentObject: searchRoot, key: collectionName };
-                }
-                 const foundInChildren = findItemAndParent(itemId, searchArray);
-                 if (foundInChildren) return foundInChildren;
-            }
-        }
-    }
-
-    // Recursive search within a nested item object
     const subContainers = ['properties', 'items', 'oneOfSchemas'];
     for (const prop of subContainers) {
-        if (searchRoot[prop]) {
-            const container = searchRoot[prop];
+        if (currentItem[prop]) {
+            const container = currentItem[prop];
             if (Array.isArray(container)) {
-                 for (let i = 0; i < container.length; i++) {
+                for (let i = 0; i < container.length; i++) {
                     const item = container[i];
                     if (item.id === itemId) {
                         return { item, parentArray: container, index: i };
                     }
-                    const foundInChildren = findItemAndParent(itemId, item);
+                    const foundInChildren = findRecursive(itemId, item);
                     if (foundInChildren) return foundInChildren;
                 }
-            } else if (typeof container === 'object' && container !== null) {
+            } else if (typeof container === 'object' && container !== null) { // For array.items
                 if (container.id === itemId) {
-                    return { item: container, parentObject: searchRoot, key: prop };
+                    return { item: container, parentObject: currentItem, key: prop };
                 }
-                const foundInChildren = findItemAndParent(itemId, container);
+                const foundInChildren = findRecursive(itemId, container);
                 if (foundInChildren) return foundInChildren;
             }
         }
     }
-
     return null;
+}
+
+/**
+ * Finds an item and its parent within the currently active schema.
+ * This is the main entry point for searching.
+ * @param {string} itemId - The ID of the item to find.
+ * @returns {object|null}
+ */
+export function findItemAndParent(itemId) {
+    const activeSchema = getActiveSchemaState();
+    if (!activeSchema) return null;
+
+    // Search top-level collections: schemaDefinition (root items) and definitions ($defs)
+    const topLevelCollections = ['schemaDefinition', 'definitions'];
+    for (const collectionName of topLevelCollections) {
+        const collection = activeSchema[collectionName];
+
+        if (Array.isArray(collection)) { // For object/oneOf roots, and definitions
+            for (let i = 0; i < collection.length; i++) {
+                const item = collection[i];
+                if (item.id === itemId) {
+                    return { item, parentArray: collection, index: i };
+                }
+                // If not found at this level, search inside this item
+                const foundInChildren = findRecursive(itemId, item);
+                if (foundInChildren) return foundInChildren;
+            }
+        } else if (typeof collection === 'object' && collection !== null) { // For array/primitive roots
+            if (collection.id === itemId) {
+                return { item: collection, parentObject: activeSchema, key: collectionName };
+            }
+            const foundInChildren = findRecursive(itemId, collection);
+            if (foundInChildren) return foundInChildren;
+        }
+    }
+
+    return null; // Item not found in the active schema
 }
