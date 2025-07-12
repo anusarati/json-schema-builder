@@ -1,16 +1,11 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
-    "./src/**/*.html",
-    "./src/**/*.js",
+    "./src/**/*.{html,js}", // Scan all .html and .js files inside the src folder
   ],
   darkMode: 'class',
   theme: {
-    extend: {
-      fontFamily: {
-        sans: ['Inter', 'sans-serif'],
-      }
-    },
+    extend: {},
   },
   plugins: [],
 }

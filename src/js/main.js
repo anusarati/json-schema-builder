@@ -1,5 +1,5 @@
-import '../main.css'; // Import main CSS file for Vite to process
-import { loadApp } from './loader.js';
+import '../main.css';
+import { loadApp } from './loader.js'; // Correctly imports the 'loadApp' function
 import { initDom, dom } from './dom.js';
 import { FIELD_TYPES, ICONS } from './config.js';
 import { render } from './renderer.js';
@@ -80,9 +80,17 @@ function init() {
     render();
 }
 
+/**
+ * Main application entry point.
+ */
 function main() {
+    // 1. Synchronously load the main HTML structure into the DOM.
     loadApp();
+    
+    // 2. Cache all the newly created DOM elements for quick access.
     initDom();
+    
+    // 3. Initialize event listeners and render the initial state.
     init();
 }
 
