@@ -21,6 +21,12 @@ export function handleGlobalDetailChange(e) {
     generateAndDisplaySchema();
 }
 
+export function handleSchemaPropertyToggle(e) {
+    const activeSchema = getActiveSchemaState();
+    activeSchema.includeSchemaProperty = e.target.checked;
+    generateAndDisplaySchema();
+}
+
 export function resetSchemaDefinitionForRootType() {
     const activeSchema = getActiveSchemaState();
     const type = activeSchema.rootSchemaType;

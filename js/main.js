@@ -2,7 +2,7 @@ import { dom } from './dom.js';
 import { FIELD_TYPES, ICONS } from './config.js';
 import { render } from './renderer.js';
 import { handleCollapseAll, handleExpandAll, initResizablePanels, toggleTheme } from './handlers/ui.js';
-import { handleClearSchema, handleGlobalDetailChange, handleRootTypeChange } from './handlers/state.js';
+import { handleClearSchema, handleGlobalDetailChange, handleRootTypeChange, handleSchemaPropertyToggle } from './handlers/state.js';
 import { handleAddDefinition, handleDeleteItem, handleItemUpdate, handleMoveItem, handleToggleCollapse, handleCopyPropertyJson } from './handlers/item.js';
 import { handleCopySchema, handleExportSchema, handleImportFile, handleOpenPropertyImport, handleOpenRootPropertiesImport, handleParseAndLoad, closeImportModal, openRootImportModal } from './handlers/io.js';
 import { handleDragEnd, handleDragLeave, handleDragOver, handleDragStart, handleDrop } from './handlers/dnd.js';
@@ -19,6 +19,7 @@ function init() {
     dom.expandAllBtn.addEventListener('click', handleExpandAll);
     dom.schemaTitle.addEventListener('input', handleGlobalDetailChange);
     dom.schemaDescription.addEventListener('input', handleGlobalDetailChange);
+    dom.includeSchemaToggle.addEventListener('change', handleSchemaPropertyToggle);
     dom.rootSchemaTypeSelector.addEventListener('change', handleRootTypeChange);
     dom.addDefinitionBtn.addEventListener('click', handleAddDefinition);
     dom.copySchemaBtn.addEventListener('click', handleCopySchema);

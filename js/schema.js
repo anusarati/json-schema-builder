@@ -161,7 +161,10 @@ export function generateAndDisplaySchema() {
         };
 
     } else {
-        finalSchema = { "$schema": "http://json-schema.org/draft-2020-12/schema#" };
+        finalSchema = {};
+        if (activeSchema.includeSchemaProperty) {
+            finalSchema["$schema"] = "http://json-schema.org/draft-2020-12/schema#";
+        }
         if (activeSchema.title) finalSchema.title = activeSchema.title;
         if (activeSchema.description) finalSchema.description = activeSchema.description;
 

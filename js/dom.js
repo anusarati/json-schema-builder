@@ -7,6 +7,8 @@ export const dom = {
     schemaTitle: document.getElementById('schemaTitle'),
     schemaTitleLabel: document.getElementById('schemaTitleLabel'),
     schemaDescription: document.getElementById('schemaDescription'),
+    includeSchemaToggle: document.getElementById('includeSchemaToggle'),
+    schemaPropertyToggleContainer: document.getElementById('schemaPropertyToggleContainer'),
     rootSchemaTypeSelector: document.getElementById('rootSchemaTypeSelector'),
     rootSchemaDefinitionContainer: document.getElementById('rootSchemaDefinitionContainer'),
     rootSchemaHeading: document.getElementById('rootSchemaHeading'),

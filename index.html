@@ -188,6 +188,12 @@
                             <label for="schemaDescription">Description</label>
                             <textarea id="schemaDescription" rows="3" placeholder="A detailed description of this schema's purpose."></textarea>
                         </div>
+                        <div id="schemaPropertyToggleContainer" class="pt-2">
+                             <label class="flex items-center cursor-pointer">
+                                <input type="checkbox" id="includeSchemaToggle">
+                                <span class="ml-2 text-sm font-medium text-slate-600 dark:text-slate-300">Include <code>$schema</code> property</span>
+                            </label>
+                        </div>
                     </div>
 
                     <div id="rootSchemaDefinitionContainer" class="space-y-4">

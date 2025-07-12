@@ -93,6 +93,9 @@ export function render() {
     dom.schemaTitle.placeholder = isFunctionMode ? 'e.g. get_current_weather' : 'My Awesome Schema';
     dom.rootSchemaHeading.textContent = isFunctionMode ? 'Function Parameters' : 'Root Schema Definition';
 
+    dom.includeSchemaToggle.checked = activeSchema.includeSchemaProperty;
+    dom.schemaPropertyToggleContainer.classList.toggle('hidden', isFunctionMode);
+
     renderRootControls();
     dom.schemaBuilderRoot.innerHTML = '';
     
