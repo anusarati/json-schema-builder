@@ -1,9 +1,9 @@
 import { appState } from './state.js';
 import { dom } from './dom.js';
 import { generateAndDisplaySchema } from './schema.js';
-import { renderItem } from './components.js';
+import { renderItem } from './components/Item.js';
 import { ICONS } from './config.js';
-import { handleAddRootItem } from './events.js';
+import { handleAddRootItem } from './handlers/item.js';
 
 function renderRootControls() {
     dom.rootActionControls.innerHTML = '';
@@ -14,7 +14,7 @@ function renderRootControls() {
     if (btnText) {
         const addBtn = document.createElement('button');
         addBtn.innerHTML = `${ICONS.plus} ${btnText}`;
-        addBtn.className = 'flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800';
+        addBtn.className = 'flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-slate-900 transition-colors';
         addBtn.addEventListener('click', handleAddRootItem);
         dom.rootActionControls.appendChild(addBtn);
     }
@@ -31,7 +31,7 @@ export function render() {
         if(appState.schemaDefinition.length > 0) {
             appState.schemaDefinition.forEach(item => dom.schemaBuilderRoot.appendChild(renderItem(item)));
         } else {
-            dom.schemaBuilderRoot.innerHTML = `<div class="text-center py-8 text-gray-500 dark:text-gray-400">No ${appState.rootSchemaType === 'object' ? 'properties' : 'options'} defined.</div>`;
+            dom.schemaBuilderRoot.innerHTML = `<div class="text-center py-8 text-slate-500 dark:text-slate-500">No ${appState.rootSchemaType === 'object' ? 'properties' : 'options'} defined.</div>`;
         }
     } else if (appState.rootSchemaType === 'array') {
         dom.schemaBuilderRoot.appendChild(renderItem(appState.schemaDefinition, { isRootArrayItem: true }));
@@ -43,7 +43,7 @@ export function render() {
      if(appState.definitions.length > 0) {
         appState.definitions.forEach(def => dom.definitionsBuilderRoot.appendChild(renderItem(def, { isDefinition: true })));
     } else {
-        dom.definitionsBuilderRoot.innerHTML = `<div class="text-center py-4 text-gray-500 dark:text-gray-400">No reusable definitions created.</div>`;
+        dom.definitionsBuilderRoot.innerHTML = `<div class="text-center py-4 text-slate-500 dark:text-slate-500">No reusable definitions created.</div>`;
     }
 
     generateAndDisplaySchema();

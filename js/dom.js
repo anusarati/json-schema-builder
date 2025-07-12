@@ -1,6 +1,8 @@
 export const dom = {
     themeToggleBtn: document.getElementById('theme-toggle-btn'),
     clearSchemaBtn: document.getElementById('clearSchemaBtn'),
+    collapseAllBtn: document.getElementById('collapseAllBtn'),
+    expandAllBtn: document.getElementById('expandAllBtn'),
     schemaTitle: document.getElementById('schemaTitle'),
     schemaDescription: document.getElementById('schemaDescription'),
     rootSchemaTypeSelector: document.getElementById('rootSchemaTypeSelector'),

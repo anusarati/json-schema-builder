@@ -1,29 +1,11 @@
 import { dom } from './dom.js';
 import { FIELD_TYPES, ICONS } from './config.js';
 import { render } from './renderer.js';
-import { 
-    toggleTheme, 
-    initResizablePanels, 
-    handleGlobalDetailChange, 
-    handleRootTypeChange, 
-    handleAddDefinition, 
-    handleCopySchema, 
-    handleExportSchema, 
-    toggleImportModal, 
-    handleImportFile, 
-    handleParseAndLoad, 
-    handleItemUpdate, 
-    handleDeleteItem, 
-    handleMoveItem, 
-    handleToggleCollapse, 
-    handleDragStart, 
-    handleDragEnd, 
-    handleDragOver, 
-    handleDragLeave, 
-    handleDrop, 
-    resetSchemaDefinitionForRootType,
-    handleClearSchema
-} from './events.js';
+import { handleCollapseAll, handleExpandAll, initResizablePanels, toggleTheme } from './handlers/ui.js';
+import { handleClearSchema, handleGlobalDetailChange, handleRootTypeChange } from './handlers/state.js';
+import { handleAddDefinition, handleAddRootItem, handleDeleteItem, handleItemUpdate, handleMoveItem, handleToggleCollapse } from './handlers/item.js';
+import { handleCopySchema, handleExportSchema, handleImportFile, handleParseAndLoad, toggleImportModal } from './handlers/io.js';
+import { handleDragEnd, handleDragLeave, handleDragOver, handleDragStart, handleDrop } from './handlers/dnd.js';
 
 function init() {
     dom.rootSchemaTypeSelector.innerHTML = FIELD_TYPES.root.map(t => `<option value="${t}">${t}</option>`).join('');
@@ -32,6 +14,8 @@ function init() {
     // --- Global Listeners ---
     dom.themeToggleBtn.addEventListener('click', toggleTheme);
     dom.clearSchemaBtn.addEventListener('click', handleClearSchema);
+    dom.collapseAllBtn.addEventListener('click', handleCollapseAll);
+    dom.expandAllBtn.addEventListener('click', handleExpandAll);
     dom.schemaTitle.addEventListener('input', handleGlobalDetailChange);
     dom.schemaDescription.addEventListener('input', handleGlobalDetailChange);
     dom.rootSchemaTypeSelector.addEventListener('change', handleRootTypeChange);
@@ -58,17 +42,19 @@ function init() {
          if (e.target.matches('input[type="checkbox"]')) handleItemUpdate(e);
     });
     builderPanel.addEventListener('click', e => {
-        const button = e.target.closest('button');
-        if (!button) return;
-        const action = button.dataset.action;
-        const card = button.closest('.schema-item-card');
-        if (card && action) {
-            const itemId = card.dataset.itemId;
-            if (action === 'delete') handleDeleteItem(itemId);
-            if (action === 'moveUp') handleMoveItem(itemId, 'up');
-            if (action === 'moveDown') handleMoveItem(itemId, 'down');
-            if (action === 'toggleCollapse') handleToggleCollapse(itemId);
-        }
+        const actionTarget = e.target.closest('[data-action]');
+        if (!actionTarget) return;
+
+        const card = actionTarget.closest('.schema-item-card');
+        if (!card) return;
+        
+        const itemId = card.dataset.itemId;
+        const action = actionTarget.dataset.action;
+
+        if (action === 'delete') handleDeleteItem(itemId);
+        if (action === 'moveUp') handleMoveItem(itemId, 'up');
+        if (action === 'moveDown') handleMoveItem(itemId, 'down');
+        if (action === 'toggleCollapse') handleToggleCollapse(itemId);
     });
     builderPanel.addEventListener('dragstart', handleDragStart);
     builderPanel.addEventListener('dragend', handleDragEnd);
@@ -78,7 +64,6 @@ function init() {
 
     // --- Initial Setup ---
     initResizablePanels();
-    // resetSchemaDefinitionForRootType(); // No longer needed here, state is loaded from persistence
     render();
 }
 

@@ -3,41 +3,156 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Professional JSON Schema Builder</title>
+    <title>JSON Schema Builder</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
-    <link rel="stylesheet" href="css/style.css">
+    <!-- Light & Dark themes for highlight.js, initially disabled -->
+    <link rel="stylesheet" id="hljs-light-theme" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css" disabled>
+    <link rel="stylesheet" id="hljs-dark-theme" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" disabled>
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
 
     <script>
-        // Basic Tailwind dark mode setup
+        // Enhanced theme setup to prevent FOUC for both Tailwind and highlight.js
+        const lightTheme = document.getElementById('hljs-light-theme');
+        const darkTheme = document.getElementById('hljs-dark-theme');
+
         if (localStorage.getItem('schemaBuilderTheme') === 'dark' || (!('schemaBuilderTheme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
             document.documentElement.classList.add('dark');
+            if (darkTheme) darkTheme.removeAttribute('disabled');
         } else {
             document.documentElement.classList.remove('dark');
+            if (lightTheme) lightTheme.removeAttribute('disabled');
         }
     </script>
-</head>
-<body class="dark:bg-gray-900 dark:text-gray-200">
+    <style type="text/tailwindcss">
+        @layer base {
+            body {
+                @apply font-sans bg-slate-50 text-slate-800;
+                @apply dark:bg-slate-950 dark:text-slate-300;
+            }
+            /* General input styling for consistency and dark mode */
+            input[type="text"], 
+            input[type="number"], 
+            select, 
+            textarea {
+                @apply w-full mt-1 p-2 text-sm rounded-md transition-all duration-200 shadow-inner;
+                /* Light mode styles */
+                @apply bg-slate-100 border border-slate-300 placeholder-slate-400 text-slate-900;
+                @apply hover:border-slate-400;
+                @apply focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 focus:outline-none focus:bg-white;
+                /* Dark mode styles */
+                @apply dark:bg-slate-800 dark:border-slate-700 dark:placeholder-slate-500 dark:text-slate-200;
+                @apply dark:hover:border-slate-600;
+                @apply dark:focus:bg-slate-900 dark:focus:ring-2 dark:focus:ring-indigo-500/50 dark:focus:border-indigo-500 dark:focus:outline-none;
+            }
+            input[type="checkbox"] {
+                @apply h-4 w-4 rounded shrink-0 transition-colors duration-200;
+                @apply text-indigo-600 border-slate-400 bg-white;
+                @apply focus:ring-1 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-white;
+                @apply dark:border-slate-600 dark:bg-slate-700;
+                @apply dark:focus:ring-indigo-600 dark:focus:ring-offset-slate-900;
+                @apply dark:checked:bg-indigo-600;
+            }
+            label {
+                @apply block text-xs font-medium text-slate-600 dark:text-slate-400;
+            }
+        }
 
-    <div id="main-container" class="flex flex-col md:flex-row h-screen w-full font-sans">
+        /* Custom scrollbar for a polished look */
+        ::-webkit-scrollbar { @apply w-2 h-2; }
+        ::-webkit-scrollbar-track { @apply bg-slate-200 dark:bg-slate-800 rounded; }
+        ::-webkit-scrollbar-thumb { @apply bg-slate-400 dark:bg-slate-600 rounded; }
+        ::-webkit-scrollbar-thumb:hover { @apply bg-slate-500 dark:bg-slate-500; }
+
+        /* Resizable panel handle */
+        .resizer {
+            @apply flex-shrink-0 bg-slate-300 dark:bg-slate-800 cursor-col-resize z-10;
+            flex-basis: 6px;
+            transition: background-color 0.2s ease;
+        }
+        .resizer:hover {
+            @apply bg-indigo-500;
+        }
+
+        /* Card styles for schema items */
+        .schema-item-card {
+            transition: box-shadow 0.2s ease-in-out, border-color 0.2s ease-in-out;
+        }
+
+        /* Styling for nested levels to create visual hierarchy */
+        .nested-level {
+            @apply ml-4 pl-4 border-l-2 mt-3 pt-3;
+            @apply border-slate-300 dark:border-slate-700;
+        }
+
+        /* Specific border colors for different complex types */
+        .nested-level.object-properties { @apply border-sky-500; }
+        .nested-level.array-items { @apply border-teal-500; }
+        .nested-level.oneof-options { @apply border-violet-500; }
+        .nested-level.defs-properties { @apply border-amber-500; }
+
+        /* Drag & Drop visual feedback */
+        .drag-handle { @apply cursor-grab; }
+        .dragging {
+            @apply opacity-50 bg-indigo-100 dark:bg-indigo-900/50;
+        }
+        .drop-zone-active {
+            @apply outline-2 outline-dashed outline-indigo-500 -outline-offset-2;
+        }
+
+        /* Modal backdrop */
+        .modal-backdrop {
+            @apply bg-black/50;
+            transition: opacity 0.3s ease;
+        }
+
+        /* Hide number input spinners */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+          -webkit-appearance: none; 
+          margin: 0; 
+        }
+        input[type=number] {
+          -moz-appearance: textfield;
+        }
+
+        /* Collapsible content transition */
+        .collapsible-content {
+            overflow: hidden;
+            transition: max-height 0.5s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.5s ease-in-out, margin-top 0.5s ease-in-out;
+        }
+        .collapsible-content.collapsed {
+            max-height: 0;
+            margin-top: 0 !important;
+            opacity: 0;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div id="main-container" class="flex flex-col md:flex-row h-screen w-full font-sans overflow-hidden">
         
         <!-- Left Panel: Builder UI -->
-        <!-- FIXED: Replaced min-h-0 with overflow-hidden to correctly constrain the panel's height and enable internal scrolling. -->
-        <div id="left-panel" class="flex flex-col bg-white dark:bg-gray-800/50 shadow-lg flex-shrink-0 w-full md:w-1/2 overflow-hidden">
-            <header class="p-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm z-20 sticky top-0">
-                <div class="flex justify-between items-center">
+        <div id="left-panel" class="flex flex-col bg-white dark:bg-slate-900 shadow-lg flex-shrink-0 w-full overflow-hidden">
+            <header class="p-4 border-b border-slate-200 dark:border-slate-800 flex-shrink-0 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm z-20 sticky top-0">
+                <div class="flex justify-between items-start flex-wrap gap-y-2">
                     <div>
-                        <h1 class="text-xl font-bold text-gray-800 dark:text-gray-100">JSON Schema Builder</h1>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Visually create &amp; manage schemas.</p>
+                        <h1 class="text-xl font-bold text-slate-800 dark:text-slate-100">JSON Schema Builder</h1>
+                        <p class="text-sm text-slate-500 dark:text-slate-400">Visually create &amp; manage schemas.</p>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <button id="clearSchemaBtn" title="New/Clear Schema" aria-label="Clear the current schema" class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300">
+                    <div class="flex items-center flex-shrink-0 flex-wrap justify-end gap-1">
+                        <button id="collapseAllBtn" title="Collapse All" aria-label="Collapse all properties" class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-minimize-2"><path d="M4 14h6v6"/><path d="M20 10h-6V4"/><path d="M14 10l7-7"/><path d="M3 21l7-7"/></svg>
+                        </button>
+                        <button id="expandAllBtn" title="Expand All" aria-label="Expand all properties" class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-maximize-2"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg>
+                        </button>
+                        <button id="clearSchemaBtn" title="New/Clear Schema" aria-label="Clear the current schema" class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-sparkle"><path d="M21.29 14.7a2.43 2.43 0 0 0-2.64-.15l-2.64 1.32a2.43 2.43 0 0 1-2.64-.15L10.72 14a2.43 2.43 0 0 0-2.64.15L5.4 15.47a2.43 2.43 0 0 1-2.64.15L2 15.17V19a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-4.28Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M4 12V4a2 2 0 0 1 2-2h8"/><path d="M9.5 10.5 8 12l1.5 1.5"/><path d="m12 8-1.5 1.5L12 11"/></svg>
                         </button>
-                        <button id="theme-toggle-btn" title="Toggle Dark/Light Mode" aria-label="Toggle Dark/Light Mode" class="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300">
+                        <button id="theme-toggle-btn" title="Toggle Dark/Light Mode" aria-label="Toggle Dark/Light Mode" class="p-2 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors">
                         </button>
                     </div>
                 </div>
@@ -46,22 +161,22 @@
             <!-- Scrollable Content Area -->
             <div id="left-panel-scroller" class="flex-grow overflow-y-auto">
                 <div class="p-4 space-y-6">
-                    <div class="space-y-4 p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700">
-                        <h2 class="text-lg font-semibold text-gray-700 dark:text-gray-200">Schema Details</h2>
+                    <div class="space-y-4 p-4 bg-slate-100 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-800">
+                        <h2 class="text-lg font-semibold text-slate-700 dark:text-slate-200">Schema Details</h2>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label for="schemaTitle" class="text-sm font-medium text-gray-600 dark:text-gray-300">Title</label>
-                                <input type="text" id="schemaTitle" placeholder="My Awesome Schema" class="mt-1 p-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                                <label for="schemaTitle">Title</label>
+                                <input type="text" id="schemaTitle" placeholder="My Awesome Schema">
                             </div>
                             <div>
-                                <label for="rootSchemaTypeSelector" class="text-sm font-medium text-gray-600 dark:text-gray-300">Root Type</label>
-                                <select id="rootSchemaTypeSelector" class="mt-1 p-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                                <label for="rootSchemaTypeSelector">Root Type</label>
+                                <select id="rootSchemaTypeSelector">
                                 </select>
                             </div>
                         </div>
                         <div>
-                            <label for="schemaDescription" class="text-sm font-medium text-gray-600 dark:text-gray-300">Description</label>
-                            <textarea id="schemaDescription" rows="3" placeholder="A detailed description of this schema's purpose." class="mt-1 p-2 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"></textarea>
+                            <label for="schemaDescription">Description</label>
+                            <textarea id="schemaDescription" rows="3" placeholder="A detailed description of this schema's purpose."></textarea>
                         </div>
                     </div>
 
@@ -70,13 +185,13 @@
                         <div id="schemaBuilderRoot" class="space-y-4"></div>
                     </div>
                     
-                    <div class="space-y-4 p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700">
-                         <h2 class="text-lg font-semibold text-gray-700 dark:text-gray-200 flex items-center gap-2">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-amber-600"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path><path d="M5 3v4"></path><path d="M19 17v4"></path><path d="M3 5h4"></path><path d="M17 19h4"></path></svg>
+                    <div class="space-y-4 p-4 bg-slate-100 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-800">
+                         <h2 class="text-lg font-semibold text-slate-700 dark:text-slate-200 flex items-center gap-2">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-amber-500"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"></path><path d="M5 3v4"></path><path d="M19 17v4"></path><path d="M3 5h4"></path><path d="M17 19h4"></path></svg>
                               Reusable Definitions ($defs)
                          </h2>
                         <div id="definitionsBuilderRoot" class="space-y-4"></div>
-                        <button id="addDefinitionBtn" class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-amber-600 rounded-md hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 dark:focus:ring-offset-gray-800">
+                        <button id="addDefinitionBtn" class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-amber-600 rounded-md hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 dark:focus:ring-offset-slate-900 transition-colors">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                             Add Definition
                         </button>
@@ -88,52 +203,50 @@
         <div id="resizer" class="resizer hidden md:block"></div>
 
         <!-- Right Panel: Schema Viewer -->
-        <!-- FIXED: Replaced min-h-0 with overflow-hidden to correctly constrain the panel's height. -->
-        <div id="right-panel" class="flex flex-col bg-gray-100 dark:bg-gray-900 flex-grow overflow-hidden">
-            <!-- FIXED: Restructured header with justify-between and a button group div for robust wrapping. -->
-            <header class="p-4 border-b border-gray-200 dark:border-gray-700 flex flex-wrap items-center justify-between gap-y-2 sticky top-0 bg-gray-100/80 dark:bg-gray-900/80 backdrop-blur-sm z-20">
-                <h2 class="text-lg font-semibold text-gray-700 dark:text-gray-200 pr-4">Generated Schema</h2>
+        <div id="right-panel" class="flex flex-col bg-slate-100 dark:bg-slate-950 flex-grow w-full overflow-hidden">
+            <header class="p-4 border-b border-slate-200 dark:border-slate-800 flex flex-wrap justify-between items-center gap-4 sticky top-0 bg-slate-100/80 dark:bg-slate-950/80 backdrop-blur-sm z-20">
+                <h2 class="text-lg font-semibold text-slate-700 dark:text-slate-200">Generated Schema</h2>
                 
-                <div class="flex items-center flex-wrap gap-2">
-                    <button id="importBtn" class="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600">
+                <div class="flex items-center flex-wrap justify-end gap-2">
+                    <button id="importBtn" class="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-md hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
                         Import
                     </button>
-                    <button id="exportBtn" class="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600">
+                    <button id="exportBtn" class="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-md hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                         Export
                     </button>
-                    <button id="copySchemaBtn" class="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-900 transition-colors duration-200">
+                    <button id="copySchemaBtn" class="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-slate-950 transition-colors duration-200">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
                         Copy
                     </button>
                 </div>
             </header>
 
-            <div id="schema-output-container" class="flex-grow relative">
-                <pre class="w-full h-full text-sm leading-relaxed bg-gray-800 font-mono overflow-auto focus:outline-none p-4"><code id="schemaOutput" class="language-json block">{}</code></pre>
+            <div id="schema-output-container" class="flex-grow relative overflow-y-auto">
+                <pre class="w-full h-full text-sm leading-relaxed font-mono focus:outline-none"><code id="schemaOutput" class="language-json block w-full h-full p-4">{}</code></pre>
             </div>
         </div>
     </div>
 
     <!-- Import Modal -->
     <div id="importModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden modal-backdrop">
-        <div class="relative w-full max-w-2xl bg-white dark:bg-gray-800 rounded-lg shadow-xl" id="importModalContent">
+        <div class="relative w-full max-w-2xl bg-white dark:bg-slate-900 rounded-lg shadow-xl" id="importModalContent">
             <div class="p-6">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-xl font-semibold text-gray-800 dark:text-gray-100">Import Schema</h3>
-                    <button id="closeImportModalBtn" aria-label="Close import modal" class="p-1 rounded-full text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700">
+                <div class="flex justify-between items-center mb-4 pb-4 border-b border-slate-200 dark:border-slate-800">
+                    <h3 class="text-xl font-semibold text-slate-800 dark:text-slate-100">Import Schema</h3>
+                    <button id="closeImportModalBtn" aria-label="Close import modal" class="p-1 rounded-full text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                     </button>
                 </div>
-                <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Paste your JSON schema below or upload a file. This will replace the current schema.</p>
-                <textarea id="importSchemaText" rows="10" class="w-full p-2 border rounded-md bg-gray-50 dark:bg-gray-700 dark:border-gray-600 font-mono text-sm" placeholder='{ "type": "object", ... }'></textarea>
+                <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">Paste your JSON schema below or upload a file. This will replace the current schema.</p>
+                <textarea id="importSchemaText" rows="10" class="font-mono text-sm" placeholder='{ "type": "object", ... }'></textarea>
                 <div class="mt-6 flex justify-between items-center">
-                    <button id="importFileBtn" class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600">
+                    <button id="importFileBtn" class="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-md hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
                         Upload File
                     </button>
                     <input type="file" id="importFileInput" class="hidden" accept=".json">
-                    <button id="parseSchemaBtn" class="px-6 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800">
+                    <button id="parseSchemaBtn" class="px-6 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-slate-900 transition-colors">
                         Parse and Load
                     </button>
                 </div>
