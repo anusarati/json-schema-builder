@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" id="hljs-light-theme" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+    <link rel="stylesheet" id="hljs-dark-theme" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" disabled>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            font-family: sans-serif;
+            background-color: #f8fafc; /* bg-slate-50 */
+        }
+        .dark {
+            background-color: #1e293b; /* dark:bg-slate-800 */
+        }
+        .dark pre, .dark code {
+             background-color: #0f172a; /* dark:bg-gray-900 */
+        }
+        pre {
+            margin: 0;
+            width: 100%;
+            height: 100vh;
+        }
+        code {
+            padding: 1rem;
+            font-family: monospace;
+            font-size: 0.875rem; /* text-sm */
+            line-height: 1.71; /* leading-relaxed */
+            display: block;
+            width: 100%;
+            height: 100%;
+            box-sizing: border-box;
+            background: transparent;
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <pre><code id="schemaOutput" class="language-json">{}</code></pre>
+
+    <script>
+        const schemaOutput = document.getElementById('schemaOutput');
+        const lightTheme = document.getElementById('hljs-light-theme');
+        const darkTheme = document.getElementById('hljs-dark-theme');
+
+        window.addEventListener('message', (event) => {
+            if (event.origin !== window.location.origin) {
+                return;
+            }
+
+            const { type, payload } = event.data;
+
+            if (type === 'updateSchema') {
+                schemaOutput.textContent = payload;
+                hljs.highlightElement(schemaOutput);
+            } else if (type === 'setTheme') {
+                if (payload === 'dark') {
+                    document.body.classList.add('dark');
+                    lightTheme.disabled = true;
+                    darkTheme.disabled = false;
+                } else {
+                    document.body.classList.remove('dark');
+                    lightTheme.disabled = false;
+                    darkTheme.disabled = true;
+                }
+                if (schemaOutput.textContent && schemaOutput.textContent !== '{}') {
+                    hljs.highlightElement(schemaOutput);
+                }
+            }
+        });
+
+        window.parent.postMessage({ type: 'iframeReady' }, window.location.origin);
+    </script>
+</body>
+</html>
