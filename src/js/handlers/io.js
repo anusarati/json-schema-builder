@@ -62,7 +62,7 @@ export function handleOpenRootPropertiesImport() {
     const activeSchema = getActiveSchemaState();
     const rootType = activeSchema.rootSchemaType;
 
-    if (!['object', 'function', 'oneOf', 'array'].includes(rootType)) {
+    if (!['object', 'function', 'oneOf', 'allOf', 'anyOf', 'not', 'array'].includes(rootType)) {
         showToast(`Cannot import properties for root type '${rootType}'.`, 'error');
         return;
     }
@@ -75,9 +75,12 @@ export function handleOpenRootPropertiesImport() {
     if (rootType === 'object' || rootType === 'function') {
         description = 'Paste a JSON object containing the properties/parameters to use for this schema.';
         placeholder = `{ "property_name": { "type": "string" } }`;
-    } else if (rootType === 'oneOf') {
-        description = 'Paste a JSON array containing the schema options for the root \`oneOf\`.';
+    } else if (['oneOf', 'allOf', 'anyOf'].includes(rootType)) {
+        description = `Paste a JSON array containing the schema options for the root \`${rootType}\`.`;
         placeholder = '[{ "type": "string" }, { "type": "number" }]';
+    } else if (rootType === 'not') {
+        description = 'Paste a JSON object representing the schema to negate.';
+        placeholder = '{ "type": "string", "maxLength": 5 }';
     } else if (rootType === 'array') {
         description = 'Paste a JSON object representing the schema for the items in the root array.';
         placeholder = '{ "type": "string", "description": "An item in the array" }';
@@ -104,9 +107,12 @@ export function handleOpenPropertyImport(itemId) {
     } else if (found.item.type === 'array') {
         description = 'Paste a JSON object representing the schema for items in this array.';
         placeholder = '{ "type": "number" }';
-    } else if (found.item.type === 'oneOf') {
-        description = 'Paste a JSON array containing the schema options for this oneOf property.';
+    } else if (['oneOf', 'allOf', 'anyOf'].includes(found.item.type)) {
+        description = `Paste a JSON array containing the schema options for this ${found.item.type} property.`;
         placeholder = '[{ "type": "string" }, { "type": "number" }]';
+    } else if (found.item.type === 'not') {
+        description = 'Paste a JSON object representing the schema to negate.';
+        placeholder = '{ "type": "string", "maxLength": 5 }';
     }
 
     dom.importModalDescription.textContent = description;
@@ -158,9 +164,13 @@ function parseAndLoadRootSchema(schema) {
                 mapJsonToInternal(defSchema, {name, isDefinition: true}));
         }
 
-        if (schema.oneOf) {
-            activeSchema.rootSchemaType = 'oneOf';
-            activeSchema.schemaDefinition = schema.oneOf.map(s => mapJsonToInternal(s));
+        const keyword = ['oneOf', 'allOf', 'anyOf'].find(k => schema[k]);
+        if (keyword) {
+            activeSchema.rootSchemaType = keyword;
+            activeSchema.schemaDefinition = schema[keyword].map(s => mapJsonToInternal(s));
+        } else if (schema.not) {
+            activeSchema.rootSchemaType = 'not';
+            activeSchema.schemaDefinition = mapJsonToInternal(schema.not);
         } else if (schema.type === 'object' || (!schema.type && schema.properties)) {
             activeSchema.rootSchemaType = 'object';
             const required = schema.required || [];

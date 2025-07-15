@@ -6,6 +6,9 @@ const BORDER_CLASSES = {
     'object-properties': 'border-sky-500',
     'array-items': 'border-teal-500',
     'oneof-options': 'border-violet-500',
+    'allOf-options': 'border-cyan-500',
+    'anyOf-options': 'border-lime-500',
+    'not-options': 'border-red-500',
     'defs-properties': 'border-amber-500',
 };
 
@@ -20,11 +23,12 @@ export function renderNestedBuilder(items, containerClass, addBtnText, parentId,
 
     if (items.length > 0) {
         items.forEach(nestedItem => {
+            if (!nestedItem) return; // Guard against initially null 'not' schema
             const newOptions = { 
                 ...parentOptions,
                 isRootArrayItem: false,
                 isRootPrimitive: false,
-                isOneOfOption: containerClass === 'oneof-options',
+                isSubSchema: ['oneof-options', 'allOf-options', 'anyOf-options', 'not-options'].includes(containerClass),
             };
             itemsContainer.appendChild(renderItem(nestedItem, newOptions));
         });

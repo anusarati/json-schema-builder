@@ -14,15 +14,17 @@ export function renderItem(item, options = {}) {
     isRootArrayItem = false,
     isRootPrimitive = false,
     isDefinition = false,
-    isOneOfOption = false,
+    isSubSchema = false,
     isFunctionParameter = false,
+    isRootNot = false,
   } = options;
 
   const isRoot        = isRootArrayItem || isRootPrimitive;
   const isRef         = item.type === '$ref';
   const canCollapse   = !isRoot;
-  const canImportProp = ['object', 'array', 'oneOf'].includes(item.type) && !isRef;
-  const canCopyProp   = !isRoot && !isOneOfOption;
+  const canImportProp = ['object', 'array', 'oneOf', 'allOf', 'anyOf', 'not'].includes(item.type) && !isRef;
+  const canCopyProp   = !isRoot && !isSubSchema && !isRootNot;
+  const canHaveName   = !isSubSchema && !isRootArrayItem && !isRootPrimitive && !isRootNot;
 
   /* ---------- card shell ---------- */
   const itemDiv = document.createElement('div');
@@ -35,14 +37,15 @@ export function renderItem(item, options = {}) {
   let headerText  = item.name || '(unnamed)';
   let headerClass = 'text-slate-800 dark:text-slate-100';
   if (isDefinition)          headerClass = 'text-amber-600 dark:text-amber-400';
-  else if (isOneOfOption)    headerClass = 'text-violet-600 dark:text-violet-400';
+  else if (isRootNot)        headerText  = 'Negated Schema';
+  else if (isSubSchema)      headerText  = 'Schema Option';
   else if (isRootArrayItem)  headerText  = 'Array Item Schema';
   else if (isRootPrimitive)  headerText  = 'Root Schema Details';
   else if (isFunctionParameter)
     headerText = item.name || '(unnamed parameter)';
 
   /* ---------- type selector ---------- */
-  const availableTypes = isOneOfOption || isFunctionParameter
+  const availableTypes = isSubSchema || isFunctionParameter || isRootNot
     ? FIELD_TYPES.all
     : FIELD_TYPES.all.filter((t) => t !== 'function');
   const typeOptions = availableTypes
@@ -54,7 +57,7 @@ export function renderItem(item, options = {}) {
     <div ${canCollapse ? 'data-action="toggleCollapse"' : ''} class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-700 ${canCollapse ? 'cursor-pointer' : ''}">
       <div class="flex items-center gap-3 min-w-0">
         ${
-          !isRoot
+          !isRoot && !isRootNot
             ? `<span class="drag-handle cursor-grab text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"
                       title="Drag to reorder" draggable="true">${ICONS.move}</span>`
             : ''
@@ -82,7 +85,7 @@ export function renderItem(item, options = {}) {
             : ''
         }
         ${
-          !isRoot
+          !isRoot && !isRootNot
             ? `
           <button data-action="moveUp"   title="Move Up"   aria-label="Move field up"   class="p-1.5 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 transition-colors">${ICONS.chevronUp}</button>
           <button data-action="moveDown" title="Move Down" aria-label="Move field down" class="p-1.5 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 transition-colors">${ICONS.chevronDown}</button>
@@ -97,7 +100,7 @@ export function renderItem(item, options = {}) {
       <div class="space-y-4">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           ${
-            !isOneOfOption && !isRoot
+            canHaveName
               ? `
             <div>
               <label for="name_${item.id}" class="${labelClasses}">Name</label>
@@ -147,7 +150,7 @@ export function renderItem(item, options = {}) {
       ${item.type === 'number' || item.type === 'integer' ? renderNumberInputs(item) : ''}
       ${item.type === 'array'   ? renderArrayInputs(item)  : ''}
       ${
-        !isOneOfOption && !isRoot && !isDefinition
+        canHaveName && !isDefinition
           ? `
         <div class="flex items-center pt-2">
           <input type="checkbox" id="required_${item.id}" data-property="required" ${
@@ -175,7 +178,20 @@ export function renderItem(item, options = {}) {
     nestedBuilder.appendChild(
       renderNestedBuilder(item.oneOfSchemas, 'oneof-options', 'Option', item.id, 'oneOfSchemas', options)
     );
+  } else if (item.type === 'allOf') {
+    nestedBuilder.appendChild(
+      renderNestedBuilder(item.allOfSchemas, 'allOf-options', 'Schema', item.id, 'allOfSchemas', options)
+    );
+  } else if (item.type === 'anyOf') {
+    nestedBuilder.appendChild(
+      renderNestedBuilder(item.anyOfSchemas, 'anyOf-options', 'Schema', item.id, 'anyOfSchemas', options)
+    );
+  } else if (item.type === 'not') {
+    nestedBuilder.appendChild(
+      renderNestedBuilder(item.notSchema ? [item.notSchema] : [], 'not-options', null, null, null, options)
+    );
   }
+
 
   /* ---------- initial max-height for smooth open ---------- */
   const collapsible = itemDiv.querySelector('.collapsible-content');

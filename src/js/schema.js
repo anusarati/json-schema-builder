@@ -30,6 +30,9 @@ export function createSchemaItem(initialData = {}) {
         properties: [],
         items: null,
         oneOfSchemas: [],
+        allOfSchemas: [],
+        anyOfSchemas: [],
+        notSchema: null,
         required: initialData.required || false,
         isDefinition: initialData.isDefinition || false,
         isCollapsed: initialData.isCollapsed || false,
@@ -41,6 +44,12 @@ export function createSchemaItem(initialData = {}) {
         item.items = initialData.items ? createSchemaItem(initialData.items) : createSchemaItem({ type: 'string' });
     } else if (item.type === 'oneOf') {
         item.oneOfSchemas = Array.isArray(initialData.oneOfSchemas) ? initialData.oneOfSchemas.map(o => createSchemaItem(o)) : [];
+    } else if (item.type === 'allOf') {
+        item.allOfSchemas = Array.isArray(initialData.allOfSchemas) ? initialData.allOfSchemas.map(o => createSchemaItem(o)) : [];
+    } else if (item.type === 'anyOf') {
+        item.anyOfSchemas = Array.isArray(initialData.anyOfSchemas) ? initialData.anyOfSchemas.map(o => createSchemaItem(o)) : [];
+    } else if (item.type === 'not') {
+        item.notSchema = initialData.notSchema ? createSchemaItem(initialData.notSchema) : createSchemaItem({ type: 'string' });
     }
     
     return item;
@@ -117,6 +126,31 @@ export function buildSchemaFromItem(item, sourceMap, path) {
                     const newPath = path ? `${path}.oneOf[${i}]` : `oneOf[${i}]`;
                     return buildSchemaFromItem(oneOfItem, sourceMap, newPath);
                 });
+                delete schema.type;
+            }
+            break;
+        case 'allOf':
+            if (item.allOfSchemas && item.allOfSchemas.length > 0) {
+                schema.allOf = item.allOfSchemas.map((allOfItem, i) => {
+                    const newPath = path ? `${path}.allOf[${i}]` : `allOf[${i}]`;
+                    return buildSchemaFromItem(allOfItem, sourceMap, newPath);
+                });
+                delete schema.type;
+            }
+            break;
+        case 'anyOf':
+            if (item.anyOfSchemas && item.anyOfSchemas.length > 0) {
+                schema.anyOf = item.anyOfSchemas.map((anyOfItem, i) => {
+                    const newPath = path ? `${path}.anyOf[${i}]` : `anyOf[${i}]`;
+                    return buildSchemaFromItem(anyOfItem, sourceMap, newPath);
+                });
+                delete schema.type;
+            }
+            break;
+        case 'not':
+            if (item.notSchema) {
+                const newPath = path ? `${path}.not` : `not`;
+                schema.not = buildSchemaFromItem(item.notSchema, sourceMap, newPath);
                 delete schema.type;
             }
             break;
@@ -246,7 +280,10 @@ export function generateAndDisplaySchema() {
             properties: activeSchema.rootSchemaType === 'object' ? activeSchema.schemaDefinition : [],
             items: activeSchema.rootSchemaType === 'array' ? activeSchema.schemaDefinition : null,
             oneOfSchemas: activeSchema.rootSchemaType === 'oneOf' ? activeSchema.schemaDefinition : [],
-            ...((!['object', 'array', 'oneOf'].includes(activeSchema.rootSchemaType)) ? activeSchema.schemaDefinition : {})
+            allOfSchemas: activeSchema.rootSchemaType === 'allOf' ? activeSchema.schemaDefinition : [],
+            anyOfSchemas: activeSchema.rootSchemaType === 'anyOf' ? activeSchema.schemaDefinition : [],
+            notSchema: activeSchema.rootSchemaType === 'not' ? activeSchema.schemaDefinition : null,
+            ...((!['object', 'array', 'oneOf', 'allOf', 'anyOf', 'not'].includes(activeSchema.rootSchemaType)) ? activeSchema.schemaDefinition : {})
         };
         
         Object.assign(finalSchema, buildSchemaFromItem(rootItem, sourceMap, ''));
@@ -280,6 +317,9 @@ export function mapJsonToInternal(schemaPart, options = {}) {
     let type = schemaPart.type;
     if (schemaPart.$ref) type = '$ref';
     else if (schemaPart.oneOf) type = 'oneOf';
+    else if (schemaPart.allOf) type = 'allOf';
+    else if (schemaPart.anyOf) type = 'anyOf';
+    else if (schemaPart.not) type = 'not';
     else if (!type && schemaPart.properties) type = 'object';
 
     const internalItem = createSchemaItem({
@@ -311,6 +351,12 @@ export function mapJsonToInternal(schemaPart, options = {}) {
         internalItem.items = mapJsonToInternal(schemaPart.items);
     } else if (type === 'oneOf' && schemaPart.oneOf) {
         internalItem.oneOfSchemas = schemaPart.oneOf.map(s => mapJsonToInternal(s));
+    } else if (type === 'allOf' && schemaPart.allOf) {
+        internalItem.allOfSchemas = schemaPart.allOf.map(s => mapJsonToInternal(s));
+    } else if (type === 'anyOf' && schemaPart.anyOf) {
+        internalItem.anyOfSchemas = schemaPart.anyOf.map(s => mapJsonToInternal(s));
+    } else if (type === 'not' && schemaPart.not) {
+        internalItem.notSchema = mapJsonToInternal(schemaPart.not);
     }
     
     return internalItem;

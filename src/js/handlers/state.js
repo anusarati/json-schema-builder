@@ -42,9 +42,11 @@ export function resetSchemaDefinitionForRootType() {
     const activeSchema = getActiveSchemaState();
     const type = activeSchema.rootSchemaType;
     activeSchema.nextId = 0; // Reset ID counter for a clean slate
-    if (type === 'object' || type === 'oneOf' || type === 'function') {
+    if (['object', 'oneOf', 'allOf', 'anyOf', 'function'].includes(type)) {
         activeSchema.schemaDefinition = [];
     } else if (type === 'array') {
+        activeSchema.schemaDefinition = createSchemaItem({ type: 'string' });
+    } else if (type === 'not') {
         activeSchema.schemaDefinition = createSchemaItem({ type: 'string' });
     } else {
         // Primitives like string, number, etc.

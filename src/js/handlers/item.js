@@ -68,11 +68,17 @@ export function handleItemUpdate(itemId, inputElement, options = {}) {
         item.properties = [];
         item.items = null;
         item.oneOfSchemas = [];
+        item.allOfSchemas = [];
+        item.anyOfSchemas = [];
+        item.notSchema = null;
         item.ref = '';
 
         if (value === 'object') item.properties = [];
         if (value === 'array') item.items = createSchemaItem({ type: 'string' });
         if (value === 'oneOf') item.oneOfSchemas = [];
+        if (value === 'allOf') item.allOfSchemas = [];
+        if (value === 'anyOf') item.anyOfSchemas = [];
+        if (value === 'not') item.notSchema = createSchemaItem({ type: 'string' });
 
         render(); // This triggers an immediate snapshot via the 'builder:rendered' event.
     } else {
@@ -159,12 +165,15 @@ export function handleParseRootProperties(jsonString) {
             mapJsonToInternal(propSchema, { name, required: required.includes(name) })
         );
         activeSchema.schemaDefinition.push(...newProps);
-    } else if (rootType === 'oneOf') {
-        if (!Array.isArray(parsed)) throw new Error('Expected a JSON array for oneOf options.');
+    } else if (['oneOf', 'allOf', 'anyOf'].includes(rootType)) {
+        if (!Array.isArray(parsed)) throw new Error(`Expected a JSON array for ${rootType} options.`);
         const newOptions = parsed.map(s => mapJsonToInternal(s));
         activeSchema.schemaDefinition.push(...newOptions);
     } else if (rootType === 'array') {
         if (typeof parsed !== 'object' || Array.isArray(parsed)) throw new Error('Expected a JSON object for array items.');
+        activeSchema.schemaDefinition = mapJsonToInternal(parsed);
+    } else if (rootType === 'not') {
+        if (typeof parsed !== 'object' || Array.isArray(parsed)) throw new Error('Expected a JSON object for the not schema.');
         activeSchema.schemaDefinition = mapJsonToInternal(parsed);
     }
     render();
@@ -182,10 +191,14 @@ export function handleParseProperty(itemId, jsonString) {
             mapJsonToInternal(propSchema, { name, required: required.includes(name) })
         );
         found.item.properties.push(...newProps);
-    } else if (found.item.type === 'oneOf') {
-        if (!Array.isArray(parsed)) throw new Error('Expected a JSON array for oneOf options.');
+    } else if (['oneOf', 'allOf', 'anyOf'].includes(found.item.type)) {
+        if (!Array.isArray(parsed)) throw new Error(`Expected a JSON array for ${found.item.type} options.`);
         const newOptions = parsed.map(s => mapJsonToInternal(s));
-        found.item.oneOfSchemas.push(...newOptions);
+        const key = `${found.item.type}Schemas`;
+        found.item[key].push(...newOptions);
+    } else if (found.item.type === 'not') {
+        if (typeof parsed !== 'object' || Array.isArray(parsed)) throw new Error('Expected a JSON object for the not schema.');
+        found.item.notSchema = mapJsonToInternal(parsed);
     } else if (found.item.type === 'array') {
         if (typeof parsed !== 'object' || Array.isArray(parsed)) throw new Error('Expected a JSON object for array items.');
         found.item.items = mapJsonToInternal(parsed);

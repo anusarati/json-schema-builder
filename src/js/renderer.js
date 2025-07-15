@@ -70,9 +70,11 @@ function renderRootControls() {
     if (!activeSchema) return;
     
     let btnText = '';
-    if (activeSchema.rootSchemaType === 'object') btnText = 'Add Root Property';
-    else if (activeSchema.rootSchemaType === 'oneOf') btnText = 'Add Root Option';
-    else if (activeSchema.rootSchemaType === 'function') btnText = 'Add Parameter';
+    const type = activeSchema.rootSchemaType;
+    if (type === 'object') btnText = 'Add Root Property';
+    else if (type === 'function') btnText = 'Add Parameter';
+    else if (type === 'oneOf') btnText = 'Add Root Option';
+    else if (type === 'allOf' || type === 'anyOf') btnText = 'Add Schema';
     
     if (btnText) {
         const addBtn = document.createElement('button');
@@ -97,11 +99,12 @@ export function render() {
     dom.leftPanelScroller.classList.remove('hidden');
 
     const isFunctionMode = activeSchema.rootSchemaType === 'function';
+    const rootType = activeSchema.rootSchemaType;
 
     // Update global schema details
     dom.schemaTitle.value = activeSchema.title;
     dom.schemaDescription.value = activeSchema.description;
-    dom.rootSchemaTypeSelector.value = activeSchema.rootSchemaType;
+    dom.rootSchemaTypeSelector.value = rootType;
     dom.schemaTitleLabel.textContent = isFunctionMode ? 'Function Name' : 'Title';
     dom.schemaTitle.placeholder = isFunctionMode ? 'e.g. get_current_weather' : 'My Awesome Schema';
     dom.rootSchemaHeading.textContent = isFunctionMode ? 'Function Parameters' : 'Root Schema Definition';
@@ -114,16 +117,29 @@ export function render() {
     
     const rootItemOptions = { isFunctionParameter: isFunctionMode };
 
-    if (['object', 'oneOf', 'function'].includes(activeSchema.rootSchemaType)) {
+    // This handles all types that have an array of children at the root
+    if (['object', 'oneOf', 'allOf', 'anyOf', 'function'].includes(rootType)) {
         if(activeSchema.schemaDefinition.length > 0) {
-            activeSchema.schemaDefinition.forEach(item => dom.schemaBuilderRoot.appendChild(renderItem(item, rootItemOptions)));
+            activeSchema.schemaDefinition.forEach(item => {
+                const options = { ...rootItemOptions };
+                if (['oneOf', 'allOf', 'anyOf'].includes(rootType)) {
+                    options.isSubSchema = true;
+                }
+                dom.schemaBuilderRoot.appendChild(renderItem(item, options));
+            });
         } else {
-            const emptyText = isFunctionMode ? 'parameters' : (activeSchema.rootSchemaType === 'object' ? 'properties' : 'options');
+            let emptyText = 'items';
+            if (rootType === 'object') emptyText = 'properties';
+            else if (rootType === 'function') emptyText = 'parameters';
+            else if (rootType === 'oneOf') emptyText = 'options';
+            else if (rootType === 'allOf' || rootType === 'anyOf') emptyText = 'schemas';
             dom.schemaBuilderRoot.innerHTML = `<div class="text-center py-8 text-slate-500 dark:text-slate-500">No ${emptyText} defined.</div>`;
         }
-    } else if (activeSchema.rootSchemaType === 'array') {
+    } else if (rootType === 'array') {
         dom.schemaBuilderRoot.appendChild(renderItem(activeSchema.schemaDefinition, { isRootArrayItem: true }));
-    } else {
+    } else if (rootType === 'not') {
+        dom.schemaBuilderRoot.appendChild(renderItem(activeSchema.schemaDefinition, { isRootNot: true }));
+    } else { // Primitives
         dom.schemaBuilderRoot.appendChild(renderItem(activeSchema.schemaDefinition, { isRootPrimitive: true }));
     }
 
