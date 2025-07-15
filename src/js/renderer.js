@@ -6,6 +6,17 @@ import { ICONS } from './config.js';
 import { handleAddRootItem } from './handlers/item.js';
 import { handleAddSchema, handleSwitchSchema, handleCloseSchema } from './handlers/tabs.js';
 
+/**
+ * Updates the disabled state of the undo/redo buttons based on the
+ * current position in the history stack.
+ */
+export function updateUndoRedoButtons() {
+    if (dom.undoBtn && dom.redoBtn) {
+        dom.undoBtn.disabled = appState.historyPointer <= 0;
+        dom.redoBtn.disabled = appState.historyPointer >= appState.history.length - 1;
+    }
+}
+
 function renderTabs() {
     dom.schemaTabsContainer.innerHTML = '';
     const tabsList = document.createElement('div');
@@ -73,6 +84,8 @@ function renderRootControls() {
 }
 
 export function render() {
+    updateUndoRedoButtons();
+
     renderTabs();
 
     const activeSchema = getActiveSchemaState();
@@ -122,4 +135,7 @@ export function render() {
     }
 
     generateAndDisplaySchema();
+
+    // Notify history module that a state change has occurred and been rendered.
+    window.dispatchEvent(new CustomEvent('builder:rendered'));
 }

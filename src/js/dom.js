@@ -7,6 +7,8 @@ export function initDom() {
         clearSchemaBtn: document.getElementById('clearSchemaBtn'),
         collapseAllBtn: document.getElementById('collapseAllBtn'),
         expandAllBtn: document.getElementById('expandAllBtn'),
+        undoBtn: document.getElementById('undoBtn'),
+        redoBtn: document.getElementById('redoBtn'),
         schemaTabsContainer: document.getElementById('schemaTabsContainer'),
         schemaTitle: document.getElementById('schemaTitle'),
         schemaTitleLabel: document.getElementById('schemaTitleLabel'),

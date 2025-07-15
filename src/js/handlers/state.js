@@ -3,13 +3,15 @@ import { generateAndDisplaySchema, createSchemaItem } from '../schema.js';
 import { render } from '../renderer.js';
 import { showToast } from '../utils.js';
 import { dom } from '../dom.js';
+import { snapshotNow } from '../history.js';
 
-export function handleGlobalDetailChange(e) {
+export function handleGlobalDetailChange(e, options = {}) {
+    const { commit = false } = options;
     const activeSchema = getActiveSchemaState();
     const { id, value } = e.target;
+
     if (id === 'schemaTitle') {
         activeSchema.title = value;
-        // Also update tab text in real-time
         const tabText = dom.schemaTabsContainer.querySelector(`[data-schema-index="${appState.activeSchemaIndex}"] .tab-text`);
         if (tabText) {
             tabText.textContent = value || 'Untitled Schema';
@@ -18,13 +20,22 @@ export function handleGlobalDetailChange(e) {
     if (id === 'schemaDescription') {
         activeSchema.description = value;
     }
+
     generateAndDisplaySchema();
+    if (commit) {
+        snapshotNow();
+    }
 }
 
-export function handleSchemaPropertyToggle(e) {
+export function handleSchemaPropertyToggle(e, options = {}) {
+    const { commit = false } = options;
     const activeSchema = getActiveSchemaState();
     activeSchema.includeSchemaProperty = e.target.checked;
+    
     generateAndDisplaySchema();
+    if (commit) {
+        snapshotNow();
+    }
 }
 
 export function resetSchemaDefinitionForRootType() {
@@ -46,12 +57,9 @@ export function handleRootTypeChange(e) {
     const oldType = activeSchema.rootSchemaType;
     const newType = e.target.value;
 
-    // Gracefully handle conversion between object and function, as they share
-    // the same underlying structure for their properties/parameters.
     if ((oldType === 'object' && newType === 'function') || (oldType === 'function' && newType === 'object')) {
         activeSchema.rootSchemaType = newType;
     } else {
-        // For all other type changes, reset the definition to a clean slate.
         activeSchema.rootSchemaType = newType;
         resetSchemaDefinitionForRootType();
     }
