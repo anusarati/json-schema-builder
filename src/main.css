@@ -104,6 +104,24 @@ input[type=number] {
     opacity: 0;
 }
 
+/* For clickable schema viewer */
+[data-clickable="true"] {
+    @apply cursor-pointer transition-colors duration-200;
+}
+[data-clickable="true"]:hover {
+    @apply text-indigo-600 dark:text-indigo-400;
+}
+
+@keyframes flash {
+  from { background-color: rgba(99, 102, 241, 0.3); } /* bg-indigo-500/30 */
+  to { background-color: transparent; }
+}
+.highlight-flash {
+    animation: flash 1.5s ease-out;
+    border-radius: 0.25rem; /* Add a slight radius to the flash */
+}
+
+
 /* --- UI DENSITY STYLES (COMPACT) --- */
 .compact #left-panel > header { @apply p-3; }
 .compact #left-panel-scroller > div { @apply p-3; }

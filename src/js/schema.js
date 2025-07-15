@@ -46,8 +46,10 @@ export function createSchemaItem(initialData = {}) {
     return item;
 }
 
-export function buildSchemaFromItem(item) {
+export function buildSchemaFromItem(item, sourceMap, path) {
     let schema = {};
+    
+    sourceMap[path] = item.id;
     
     if (item.type === '$ref') {
         if (item.ref) schema.$ref = item.ref;
@@ -91,7 +93,8 @@ export function buildSchemaFromItem(item) {
                 const requiredFields = [];
                 item.properties.forEach(prop => {
                     if (prop.name) {
-                        schema.properties[prop.name] = buildSchemaFromItem(prop);
+                        const newPath = path ? `${path}.properties.${prop.name}` : `properties.${prop.name}`;
+                        schema.properties[prop.name] = buildSchemaFromItem(prop, sourceMap, newPath);
                         if (prop.required) requiredFields.push(prop.name);
                     }
                 });
@@ -100,19 +103,72 @@ export function buildSchemaFromItem(item) {
             }
             break;
         case 'array':
-            if (item.items) schema.items = buildSchemaFromItem(item.items);
+            if (item.items) {
+                const newPath = path ? `${path}.items` : `items`;
+                schema.items = buildSchemaFromItem(item.items, sourceMap, newPath);
+            }
             if (item.minItems !== undefined) schema.minItems = item.minItems;
             if (item.maxItems !== undefined) schema.maxItems = item.maxItems;
             if (item.uniqueItems) schema.uniqueItems = true;
             break;
         case 'oneOf':
             if (item.oneOfSchemas && item.oneOfSchemas.length > 0) {
-                schema.oneOf = item.oneOfSchemas.map(buildSchemaFromItem);
+                schema.oneOf = item.oneOfSchemas.map((oneOfItem, i) => {
+                    const newPath = path ? `${path}.oneOf[${i}]` : `oneOf[${i}]`;
+                    return buildSchemaFromItem(oneOfItem, sourceMap, newPath);
+                });
                 delete schema.type;
             }
             break;
     }
     return schema;
+}
+
+function schemaToHtmlRecursive(value, sourceMap, path = '', depth = 0) {
+    const indent = '  '.repeat(depth);
+    const nextIndent = '  '.repeat(depth + 1);
+
+    if (value === null) return `<span class="hljs-literal">null</span>`;
+    if (typeof value === 'string') return `<span class="hljs-string">"${value.replace(/"/g, '\\"')}"</span>`;
+    if (typeof value === 'number') return `<span class="hljs-number">${value}</span>`;
+    if (typeof value === 'boolean') return `<span class="hljs-literal">${value}</span>`;
+
+    if (Array.isArray(value)) {
+        if (value.length === 0) return '[]';
+        let html = '[\n';
+        html += value.map((val, i) => {
+            const newPath = `${path}[${i}]`;
+            const valueHtml = schemaToHtmlRecursive(val, sourceMap, newPath, depth + 1);
+            const comma = i < value.length - 1 ? ',' : '';
+            return `${nextIndent}${valueHtml}${comma}`;
+        }).join('\n');
+        html += `\n${indent}]`;
+        return html;
+    }
+
+    if (typeof value === 'object') {
+        const entries = Object.entries(value);
+        const itemId = sourceMap[path];
+        const dataAttr = itemId ? `data-item-id="${itemId}"` : '';
+
+        if (entries.length === 0) return `<span ${dataAttr}>{ }</span>`;
+        
+        let html = `<span ${dataAttr}>{</span>\n`;
+        html += entries.map(([key, val], i) => {
+            const newPath = path ? `${path}.${key}` : key;
+            const keyItemId = sourceMap[newPath];
+            const keyDataAttr = keyItemId ? `data-item-id="${keyItemId}" data-clickable="true"` : '';
+
+            const keySpan = `<span class="hljs-attr" ${keyDataAttr}>"${key}"</span>`;
+            const valueHtml = schemaToHtmlRecursive(val, sourceMap, newPath, depth + 1);
+            const comma = i < entries.length - 1 ? ',' : '';
+            return `${nextIndent}${keySpan}: ${valueHtml}${comma}`;
+        }).join('\n');
+        html += `\n${indent}}`;
+        return html;
+    }
+
+    return String(value);
 }
 
 export function generateAndDisplaySchema() {
@@ -124,6 +180,7 @@ export function generateAndDisplaySchema() {
     }
     
     let finalSchema;
+    const sourceMap = {};
     
     if (activeSchema.rootSchemaType === 'function') {
         const parameters = {
@@ -134,7 +191,8 @@ export function generateAndDisplaySchema() {
         
         activeSchema.schemaDefinition.forEach(prop => {
             if (prop.name) {
-                parameters.properties[prop.name] = buildSchemaFromItem(prop);
+                const path = `function.parameters.properties.${prop.name}`;
+                parameters.properties[prop.name] = buildSchemaFromItem(prop, sourceMap, path);
                 if (prop.required) requiredFields.push(prop.name);
             }
         });
@@ -146,7 +204,10 @@ export function generateAndDisplaySchema() {
         if (activeSchema.definitions.length > 0) {
             parameters.$defs = {};
             activeSchema.definitions.forEach(def => {
-                if (def.name) parameters.$defs[def.name] = buildSchemaFromItem(def);
+                if (def.name) {
+                    const path = `function.parameters.$defs.${def.name}`;
+                    parameters.$defs[def.name] = buildSchemaFromItem(def, sourceMap, path);
+                }
             });
             if (Object.keys(parameters.$defs).length === 0) delete parameters.$defs;
         }
@@ -175,12 +236,16 @@ export function generateAndDisplaySchema() {
             oneOfSchemas: activeSchema.rootSchemaType === 'oneOf' ? activeSchema.schemaDefinition : [],
             ...((!['object', 'array', 'oneOf'].includes(activeSchema.rootSchemaType)) ? activeSchema.schemaDefinition : {})
         };
-        Object.assign(finalSchema, buildSchemaFromItem(rootItem));
+        
+        Object.assign(finalSchema, buildSchemaFromItem(rootItem, sourceMap, ''));
 
         if (activeSchema.definitions.length > 0) {
             finalSchema.$defs = {};
             activeSchema.definitions.forEach(def => {
-                if (def.name) finalSchema.$defs[def.name] = buildSchemaFromItem(def);
+                if (def.name) {
+                    const path = `$defs.${def.name}`;
+                    finalSchema.$defs[def.name] = buildSchemaFromItem(def, sourceMap, path);
+                }
             });
             if (Object.keys(finalSchema.$defs).length === 0) delete finalSchema.$defs;
         }
@@ -189,12 +254,12 @@ export function generateAndDisplaySchema() {
     const newCode = document.createElement('code');
     newCode.id = 'schemaOutput';
     newCode.className = 'language-json block w-full h-full p-4';
-    newCode.textContent = JSON.stringify(finalSchema, null, 2);
+    // Use our custom renderer instead of highlight.js
+    newCode.innerHTML = schemaToHtmlRecursive(finalSchema, sourceMap);
     
     dom.schemaOutput.replaceWith(newCode);
     dom.schemaOutput = newCode;
-    hljs.highlightElement(dom.schemaOutput);
-
+    
     saveState(appState);
 }
 

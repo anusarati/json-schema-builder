@@ -9,6 +9,43 @@ import { handleAddDefinition, handleDeleteItem, handleItemUpdate, handleMoveItem
 import { handleCopySchema, handleExportSchema, handleImportFile, handleOpenPropertyImport, handleOpenRootPropertiesImport, handleParseAndLoad, closeImportModal, openRootImportModal } from './handlers/io.js';
 import { handleDragEnd, handleDragLeave, handleDragOver, handleDragStart, handleDrop } from './handlers/dnd.js';
 import { undo, redo } from './history.js';
+import { findItemAndParent } from './utils.js';
+
+function handleSchemaViewClick(e) {
+    const target = e.target.closest('[data-item-id]');
+    if (!target) return;
+
+    const itemId = target.dataset.itemId;
+    if (itemId === 'root') return; // Don't do anything for root clicks
+
+    const elementToHighlight = dom.leftPanel.querySelector(`.schema-item-card[data-item-id="${itemId}"]`);
+
+    if (elementToHighlight) {
+        // Force-expand all collapsed parents
+        let parent = elementToHighlight.parentElement;
+        while (parent && parent !== dom.leftPanelScroller) {
+            if (parent.matches('.schema-item-card')) {
+                const itemState = findItemAndParent(parent.dataset.itemId);
+                if (itemState && itemState.item.isCollapsed) {
+                    // This function handles both state and DOM update
+                    handleToggleCollapse(parent.dataset.itemId);
+                }
+            }
+            parent = parent.parentElement;
+        }
+
+        // Use a timeout to allow CSS transitions from expansion to finish before scrolling
+        setTimeout(() => {
+            elementToHighlight.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            
+            // Apply a flashing highlight for visual feedback
+            elementToHighlight.classList.remove('highlight-flash');
+            void elementToHighlight.offsetWidth; // Trigger a DOM reflow
+            elementToHighlight.classList.add('highlight-flash');
+        }, 100); 
+    }
+}
+
 
 function init() {
     dom.rootSchemaTypeSelector.innerHTML = FIELD_TYPES.root.map(t => `<option value="${t}">${t}</option>`).join('');
@@ -119,6 +156,10 @@ function init() {
     builderPanel.addEventListener('dragover', handleDragOver);
     builderPanel.addEventListener('dragleave', handleDragLeave);
     builderPanel.addEventListener('drop', handleDrop);
+    
+    // --- Event Delegation for Viewer Panel ---
+    dom.schemaOutputContainer.addEventListener('click', handleSchemaViewClick);
+
 
     // --- Initial Setup ---
     initResizablePanels();
