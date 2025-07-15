@@ -134,37 +134,49 @@ function schemaToHtmlRecursive(value, sourceMap, path = '', depth = 0) {
     if (typeof value === 'boolean') return `<span class="hljs-literal">${value}</span>`;
 
     if (Array.isArray(value)) {
-        if (value.length === 0) return '[]';
-        let html = '[\n';
+        const itemId = sourceMap[path];
+        const dataAttr = itemId ? `data-item-id="${itemId}" data-clickable="true"` : '';
+        if (value.length === 0) return `<span ${dataAttr}>[]</span>`;
+
+        let html = `<span ${dataAttr}>[</span>\n`;
         html += value.map((val, i) => {
             const newPath = `${path}[${i}]`;
             const valueHtml = schemaToHtmlRecursive(val, sourceMap, newPath, depth + 1);
             const comma = i < value.length - 1 ? ',' : '';
             return `${nextIndent}${valueHtml}${comma}`;
         }).join('\n');
-        html += `\n${indent}]`;
+        html += `\n${indent}<span ${dataAttr}>]</span>`;
         return html;
     }
 
     if (typeof value === 'object') {
         const entries = Object.entries(value);
-        const itemId = sourceMap[path];
-        const dataAttr = itemId ? `data-item-id="${itemId}"` : '';
+        const containerItemId = sourceMap[path];
+        const dataAttr = containerItemId ? `data-item-id="${containerItemId}" data-clickable="true"` : '';
 
         if (entries.length === 0) return `<span ${dataAttr}>{ }</span>`;
         
         let html = `<span ${dataAttr}>{</span>\n`;
         html += entries.map(([key, val], i) => {
             const newPath = path ? `${path}.${key}` : key;
-            const keyItemId = sourceMap[newPath];
-            const keyDataAttr = keyItemId ? `data-item-id="${keyItemId}" data-clickable="true"` : '';
-
+            const valueItemId = sourceMap[newPath];
+            
+            // A key is clickable if its value is a new item, or if the container itself is an item.
+            const clickableIdForKey = valueItemId || containerItemId;
+            const keyDataAttr = clickableIdForKey ? `data-item-id="${clickableIdForKey}" data-clickable="true"` : '';
             const keySpan = `<span class="hljs-attr" ${keyDataAttr}>"${key}"</span>`;
-            const valueHtml = schemaToHtmlRecursive(val, sourceMap, newPath, depth + 1);
+            
+            let valueHtml = schemaToHtmlRecursive(val, sourceMap, newPath, depth + 1);
+
+            // If the value is a primitive (not an object/array), it should be clickable if its key was.
+            if (clickableIdForKey && (typeof val !== 'object' || val === null)) {
+                valueHtml = `<span data-item-id="${clickableIdForKey}" data-clickable="true">${valueHtml}</span>`;
+            }
+
             const comma = i < entries.length - 1 ? ',' : '';
             return `${nextIndent}${keySpan}: ${valueHtml}${comma}`;
         }).join('\n');
-        html += `\n${indent}}`;
+        html += `\n${indent}<span ${dataAttr}>}</span>`;
         return html;
     }
 
@@ -254,7 +266,6 @@ export function generateAndDisplaySchema() {
     const newCode = document.createElement('code');
     newCode.id = 'schemaOutput';
     newCode.className = 'language-json block w-full h-full p-4';
-    // Use our custom renderer instead of highlight.js
     newCode.innerHTML = schemaToHtmlRecursive(finalSchema, sourceMap);
     
     dom.schemaOutput.replaceWith(newCode);
