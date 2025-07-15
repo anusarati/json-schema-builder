@@ -10,6 +10,10 @@ const BORDER_CLASSES = {
     'anyOf-options': 'border-lime-500',
     'not-options': 'border-red-500',
     'defs-properties': 'border-amber-500',
+    'additional-properties': 'border-rose-500',
+    'if-schema': 'border-green-500',
+    'then-schema': 'border-blue-500',
+    'else-schema': 'border-orange-500',
 };
 
 export function renderNestedBuilder(items, containerClass, addBtnText, parentId, property, parentOptions = {}) {
@@ -28,7 +32,7 @@ export function renderNestedBuilder(items, containerClass, addBtnText, parentId,
                 ...parentOptions,
                 isRootArrayItem: false,
                 isRootPrimitive: false,
-                isSubSchema: ['oneof-options', 'allOf-options', 'anyOf-options', 'not-options'].includes(containerClass),
+                isSubSchema: ['oneof-options', 'allOf-options', 'anyOf-options', 'not-options', 'if-schema', 'then-schema', 'else-schema', 'additional-properties'].includes(containerClass),
             };
             itemsContainer.appendChild(renderItem(nestedItem, newOptions));
         });
@@ -43,7 +47,8 @@ export function renderNestedBuilder(items, containerClass, addBtnText, parentId,
         const addBtn = document.createElement('button');
         addBtn.innerHTML = `${ICONS.plus} Add ${addBtnText}`;
         addBtn.className = 'flex items-center gap-2 mt-4 px-3 py-1.5 text-xs font-medium text-white bg-slate-600 rounded-md hover:bg-slate-700 dark:bg-slate-600 dark:hover:bg-slate-500 transition-colors';
-        addBtn.addEventListener('click', () => handleAddNestedItem(parentId, property));
+        addBtn.dataset.action = 'add-nested';
+        addBtn.dataset.property = property;
         containerDiv.appendChild(addBtn);
     }
     

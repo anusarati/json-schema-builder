@@ -23,14 +23,68 @@ export function handleAddDefinition() {
     render();
 }
 
-export function handleAddNestedItem(parentId, property) {
-    const found = findItemAndParent(parentId);
+export function handleAddNestedItem(itemId, property) {
+    const found = findItemAndParent(itemId);
     if (found && found.item) {
         const newItem = createSchemaItem({ type: 'string' });
         found.item[property].push(newItem);
         render();
     }
 }
+
+export function handleAddConditionalSchema(itemId, conditionalType) {
+    const found = findItemAndParent(itemId);
+    if (!found || !found.item) return;
+    
+    const key = `${conditionalType}Schema`;
+    if (!found.item[key]) {
+        found.item[key] = createSchemaItem({ type: 'object' });
+        render();
+    }
+}
+
+export function handleDeleteConditionalSchema(itemId, conditionalType) {
+    const found = findItemAndParent(itemId);
+    if (!found || !found.item) return;
+
+    if (confirm(`Are you sure you want to delete the ${conditionalType.toUpperCase()} schema?`)) {
+        const key = `${conditionalType}Schema`;
+        found.item[key] = null;
+        render();
+    }
+}
+
+export function handleAddRootConditionalSchema(conditionalType) {
+    const activeSchema = getActiveSchemaState();
+    const key = `${conditionalType}Schema`;
+    if (!activeSchema[key]) {
+        activeSchema[key] = createSchemaItem({ type: 'object' });
+        render();
+    }
+}
+
+export function handleDeleteRootConditionalSchema(conditionalType) {
+    if (confirm(`Are you sure you want to delete the root ${conditionalType.toUpperCase()} schema?`)) {
+        const activeSchema = getActiveSchemaState();
+        const key = `${conditionalType}Schema`;
+        activeSchema[key] = null;
+        render();
+    }
+}
+
+export function handleToggleConditionalCollapse(itemId) {
+    const found = findItemAndParent(itemId);
+    if (!found || !found.item) return;
+    found.item.isConditionalCollapsed = !found.item.isConditionalCollapsed;
+    render(); // Re-render to update the chevron and container class
+}
+
+export function handleToggleRootConditionalCollapse() {
+    const activeSchema = getActiveSchemaState();
+    activeSchema.isConditionalCollapsed = !activeSchema.isConditionalCollapsed;
+    render(); // Re-render to update the chevron and container class
+}
+
 
 export function handleItemUpdate(itemId, inputElement, options = {}) {
     const { commit = false } = options;
@@ -40,6 +94,7 @@ export function handleItemUpdate(itemId, inputElement, options = {}) {
     const item = found.item;
     const property = inputElement.dataset.property;
     const oldType = item.type;
+    const oldAdditionalPropertiesType = item.additionalPropertiesType;
 
     let value = inputElement.type === 'checkbox' ?
         inputElement.checked :
@@ -54,6 +109,29 @@ export function handleItemUpdate(itemId, inputElement, options = {}) {
 
     item[property] = value;
 
+    // --- START: NEW MUTUAL EXCLUSION LOGIC ---
+    const card = inputElement.closest('.schema-item-card');
+    if (card && value !== undefined) { // Only clear if a value was actually entered
+        if (property === 'minimum') {
+            item.exclusiveMinimum = undefined;
+            const exMinInput = card.querySelector(`input[data-property="exclusiveMinimum"]`);
+            if (exMinInput) exMinInput.value = '';
+        } else if (property === 'exclusiveMinimum') {
+            item.minimum = undefined;
+            const minInput = card.querySelector(`input[data-property="minimum"]`);
+            if (minInput) minInput.value = '';
+        } else if (property === 'maximum') {
+            item.exclusiveMaximum = undefined;
+            const exMaxInput = card.querySelector(`input[data-property="exclusiveMaximum"]`);
+            if (exMaxInput) exMaxInput.value = '';
+        } else if (property === 'exclusiveMaximum') {
+            item.maximum = undefined;
+            const maxInput = card.querySelector(`input[data-property="maximum"]`);
+            if (maxInput) maxInput.value = '';
+        }
+    }
+    // --- END: NEW MUTUAL EXCLUSION LOGIC ---
+
     if (property === 'name') {
         const card = inputElement.closest('.schema-item-card');
         const title = card?.querySelector('.field-title');
@@ -62,6 +140,15 @@ export function handleItemUpdate(itemId, inputElement, options = {}) {
             title.textContent = display;
             title.title = display;
         }
+    }
+
+    // If additionalPropertiesType changes, we might need to re-render
+    if (property === 'additionalPropertiesType' && value !== oldAdditionalPropertiesType) {
+        if (value === 'schema' && !item.additionalPropertiesSchema) {
+            item.additionalPropertiesSchema = createSchemaItem({ type: 'string' });
+        }
+        render();
+        return; // Full render handles snapshot
     }
 
     if (property === 'type' && value !== oldType) {

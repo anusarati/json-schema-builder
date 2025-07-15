@@ -9,6 +9,8 @@ export function handleGlobalDetailChange(e, options = {}) {
     const { commit = false } = options;
     const activeSchema = getActiveSchemaState();
     const { id, value } = e.target;
+    const property = e.target.id.replace('root', '').charAt(0).toLowerCase() + e.target.id.replace('root', '').slice(1);
+
 
     if (id === 'schemaTitle') {
         activeSchema.title = value;
@@ -16,16 +18,29 @@ export function handleGlobalDetailChange(e, options = {}) {
         if (tabText) {
             tabText.textContent = value || 'Untitled Schema';
         }
-    }
-    if (id === 'schemaDescription') {
+    } else if (id === 'schemaDescription') {
         activeSchema.description = value;
+    } else if (id === 'rootMinProperties' || id === 'rootMaxProperties') {
+        activeSchema[property] = value === '' ? undefined : parseFloat(value);
     }
+
 
     generateAndDisplaySchema();
     if (commit) {
         snapshotNow();
     }
 }
+
+export function handleRootAdditionalPropertiesChange(e) {
+    const activeSchema = getActiveSchemaState();
+    const { value } = e.target;
+    activeSchema.additionalPropertiesType = value;
+    if (value === 'schema' && !activeSchema.additionalPropertiesSchema) {
+        activeSchema.additionalPropertiesSchema = createSchemaItem({ type: 'string' });
+    }
+    render();
+}
+
 
 export function handleSchemaPropertyToggle(e, options = {}) {
     const { commit = false } = options;

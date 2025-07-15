@@ -17,8 +17,8 @@ export function createSchemaItem(initialData = {}) {
         maxLength: initialData.maxLength,
         minimum: initialData.minimum,
         maximum: initialData.maximum,
-        exclusiveMinimum: initialData.exclusiveMinimum || false,
-        exclusiveMaximum: initialData.exclusiveMaximum || false,
+        exclusiveMinimum: initialData.exclusiveMinimum,
+        exclusiveMaximum: initialData.exclusiveMaximum,
         minItems: initialData.minItems,
         maxItems: initialData.maxItems,
         uniqueItems: initialData.uniqueItems || false,
@@ -36,10 +36,25 @@ export function createSchemaItem(initialData = {}) {
         required: initialData.required || false,
         isDefinition: initialData.isDefinition || false,
         isCollapsed: initialData.isCollapsed || false,
+
+        // New properties for object validation
+        additionalPropertiesType: initialData.additionalPropertiesType || 'allow', // 'allow', 'disallow', 'schema'
+        additionalPropertiesSchema: initialData.additionalPropertiesSchema || null,
+        minProperties: initialData.minProperties,
+        maxProperties: initialData.maxProperties,
+
+        // New properties for conditional validation
+        ifSchema: initialData.ifSchema || null,
+        thenSchema: initialData.thenSchema || null,
+        elseSchema: initialData.elseSchema || null,
+        isConditionalCollapsed: initialData.isConditionalCollapsed || false,
     };
 
     if (item.type === 'object') {
         item.properties = Array.isArray(initialData.properties) ? initialData.properties.map(p => createSchemaItem(p)) : [];
+        if (item.additionalPropertiesSchema) {
+            item.additionalPropertiesSchema = createSchemaItem(item.additionalPropertiesSchema);
+        }
     } else if (item.type === 'array') {
         item.items = initialData.items ? createSchemaItem(initialData.items) : createSchemaItem({ type: 'string' });
     } else if (item.type === 'oneOf') {
@@ -51,6 +66,11 @@ export function createSchemaItem(initialData = {}) {
     } else if (item.type === 'not') {
         item.notSchema = initialData.notSchema ? createSchemaItem(initialData.notSchema) : createSchemaItem({ type: 'string' });
     }
+
+    // Initialize conditional schemas if they exist
+    if (item.ifSchema) item.ifSchema = createSchemaItem(item.ifSchema);
+    if (item.thenSchema) item.thenSchema = createSchemaItem(item.thenSchema);
+    if (item.elseSchema) item.elseSchema = createSchemaItem(item.elseSchema);
     
     return item;
 }
@@ -65,7 +85,9 @@ export function buildSchemaFromItem(item, sourceMap, path) {
         return schema;
     }
 
-    schema.type = item.type;
+    if (item.type && !['oneOf', 'allOf', 'anyOf', 'not'].includes(item.type)) {
+        schema.type = item.type;
+    }
     if (item.description) schema.description = item.description;
     
     ['defaultValue', 'constValue', 'examples'].forEach(prop => {
@@ -93,10 +115,12 @@ export function buildSchemaFromItem(item, sourceMap, path) {
         case 'integer':
             if (item.minimum !== undefined) schema.minimum = item.minimum;
             if (item.maximum !== undefined) schema.maximum = item.maximum;
-            if (item.exclusiveMinimum) schema.exclusiveMinimum = item.minimum;
-            if (item.exclusiveMaximum) schema.exclusiveMaximum = item.maximum;
+            if (item.exclusiveMinimum !== undefined) schema.exclusiveMinimum = item.exclusiveMinimum;
+            if (item.exclusiveMaximum !== undefined) schema.exclusiveMaximum = item.exclusiveMaximum;
             break;
         case 'object':
+            if (item.minProperties !== undefined) schema.minProperties = item.minProperties;
+            if (item.maxProperties !== undefined) schema.maxProperties = item.maxProperties;
             if (item.properties && item.properties.length > 0) {
                 schema.properties = {};
                 const requiredFields = [];
@@ -109,6 +133,12 @@ export function buildSchemaFromItem(item, sourceMap, path) {
                 });
                 if (Object.keys(schema.properties).length === 0) delete schema.properties;
                 if (requiredFields.length > 0) schema.required = requiredFields;
+            }
+            if (item.additionalPropertiesType === 'disallow') {
+                schema.additionalProperties = false;
+            } else if (item.additionalPropertiesType === 'schema' && item.additionalPropertiesSchema) {
+                const newPath = path ? `${path}.additionalProperties` : `additionalProperties`;
+                schema.additionalProperties = buildSchemaFromItem(item.additionalPropertiesSchema, sourceMap, newPath);
             }
             break;
         case 'array':
@@ -126,7 +156,6 @@ export function buildSchemaFromItem(item, sourceMap, path) {
                     const newPath = path ? `${path}.oneOf[${i}]` : `oneOf[${i}]`;
                     return buildSchemaFromItem(oneOfItem, sourceMap, newPath);
                 });
-                delete schema.type;
             }
             break;
         case 'allOf':
@@ -135,7 +164,6 @@ export function buildSchemaFromItem(item, sourceMap, path) {
                     const newPath = path ? `${path}.allOf[${i}]` : `allOf[${i}]`;
                     return buildSchemaFromItem(allOfItem, sourceMap, newPath);
                 });
-                delete schema.type;
             }
             break;
         case 'anyOf':
@@ -144,17 +172,30 @@ export function buildSchemaFromItem(item, sourceMap, path) {
                     const newPath = path ? `${path}.anyOf[${i}]` : `anyOf[${i}]`;
                     return buildSchemaFromItem(anyOfItem, sourceMap, newPath);
                 });
-                delete schema.type;
             }
             break;
         case 'not':
             if (item.notSchema) {
                 const newPath = path ? `${path}.not` : `not`;
                 schema.not = buildSchemaFromItem(item.notSchema, sourceMap, newPath);
-                delete schema.type;
             }
             break;
     }
+    
+    // Build conditional schemas
+    if (item.ifSchema) {
+        const newPath = path ? `${path}.if` : `if`;
+        schema.if = buildSchemaFromItem(item.ifSchema, sourceMap, newPath);
+    }
+    if (item.thenSchema) {
+        const newPath = path ? `${path}.then` : `then`;
+        schema.then = buildSchemaFromItem(item.thenSchema, sourceMap, newPath);
+    }
+    if (item.elseSchema) {
+        const newPath = path ? `${path}.else` : `else`;
+        schema.else = buildSchemaFromItem(item.elseSchema, sourceMap, newPath);
+    }
+
     return schema;
 }
 
@@ -283,10 +324,24 @@ export function generateAndDisplaySchema() {
             allOfSchemas: activeSchema.rootSchemaType === 'allOf' ? activeSchema.schemaDefinition : [],
             anyOfSchemas: activeSchema.rootSchemaType === 'anyOf' ? activeSchema.schemaDefinition : [],
             notSchema: activeSchema.rootSchemaType === 'not' ? activeSchema.schemaDefinition : null,
+            additionalPropertiesType: activeSchema.additionalPropertiesType,
+            additionalPropertiesSchema: activeSchema.additionalPropertiesSchema,
+            minProperties: activeSchema.minProperties,
+            maxProperties: activeSchema.maxProperties,
             ...((!['object', 'array', 'oneOf', 'allOf', 'anyOf', 'not'].includes(activeSchema.rootSchemaType)) ? activeSchema.schemaDefinition : {})
         };
         
         Object.assign(finalSchema, buildSchemaFromItem(rootItem, sourceMap, ''));
+        
+        if (activeSchema.ifSchema) {
+            finalSchema.if = buildSchemaFromItem(activeSchema.ifSchema, sourceMap, 'if');
+        }
+        if (activeSchema.thenSchema) {
+            finalSchema.then = buildSchemaFromItem(activeSchema.thenSchema, sourceMap, 'then');
+        }
+        if (activeSchema.elseSchema) {
+            finalSchema.else = buildSchemaFromItem(activeSchema.elseSchema, sourceMap, 'else');
+        }
 
         if (activeSchema.definitions.length > 0) {
             finalSchema.$defs = {};
@@ -320,7 +375,29 @@ export function mapJsonToInternal(schemaPart, options = {}) {
     else if (schemaPart.allOf) type = 'allOf';
     else if (schemaPart.anyOf) type = 'anyOf';
     else if (schemaPart.not) type = 'not';
-    else if (!type && schemaPart.properties) type = 'object';
+    else if (!type && (schemaPart.properties || schemaPart.if)) type = 'object';
+
+    // Handle modern and legacy exclusive min/max
+    let { minimum, maximum, exclusiveMinimum, exclusiveMaximum } = schemaPart;
+    if (typeof schemaPart.exclusiveMinimum === 'number') {
+        exclusiveMinimum = schemaPart.exclusiveMinimum;
+        minimum = undefined; // Per 2020-12, these are independent. Clear the other for our UI.
+    } else if (schemaPart.exclusiveMinimum === true && schemaPart.minimum !== undefined) {
+        exclusiveMinimum = schemaPart.minimum; // Legacy conversion
+        minimum = undefined;
+    } else {
+        exclusiveMinimum = undefined; // Not present or not a boolean `true`
+    }
+    
+    if (typeof schemaPart.exclusiveMaximum === 'number') {
+        exclusiveMaximum = schemaPart.exclusiveMaximum;
+        maximum = undefined;
+    } else if (schemaPart.exclusiveMaximum === true && schemaPart.maximum !== undefined) {
+        exclusiveMaximum = schemaPart.maximum; // Legacy conversion
+        maximum = undefined;
+    } else {
+        exclusiveMaximum = undefined;
+    }
 
     const internalItem = createSchemaItem({
         name, type, required, isDefinition,
@@ -329,10 +406,10 @@ export function mapJsonToInternal(schemaPart, options = {}) {
         format: schemaPart.format,
         minLength: schemaPart.minLength,
         maxLength: schemaPart.maxLength,
-        minimum: schemaPart.minimum,
-        maximum: schemaPart.maximum,
-        exclusiveMinimum: !!schemaPart.exclusiveMinimum,
-        exclusiveMaximum: !!schemaPart.exclusiveMaximum,
+        minimum: minimum,
+        maximum: maximum,
+        exclusiveMinimum: exclusiveMinimum,
+        exclusiveMaximum: exclusiveMaximum,
         minItems: schemaPart.minItems,
         maxItems: schemaPart.maxItems,
         uniqueItems: !!schemaPart.uniqueItems,
@@ -342,11 +419,27 @@ export function mapJsonToInternal(schemaPart, options = {}) {
         constValue: schemaPart.const !== undefined ? JSON.stringify(schemaPart.const, null, 2) : undefined,
         ref: schemaPart.$ref,
     });
+    
+    if (schemaPart.if) internalItem.ifSchema = mapJsonToInternal(schemaPart.if);
+    if (schemaPart.then) internalItem.thenSchema = mapJsonToInternal(schemaPart.then);
+    if (schemaPart.else) internalItem.elseSchema = mapJsonToInternal(schemaPart.else);
 
-    if (type === 'object' && schemaPart.properties) {
-        const nestedRequired = schemaPart.required || [];
-        internalItem.properties = Object.entries(schemaPart.properties).map(([propName, propSchema]) => 
-            mapJsonToInternal(propSchema, { name: propName, required: nestedRequired.includes(propName) }));
+    if (type === 'object') {
+        internalItem.minProperties = schemaPart.minProperties;
+        internalItem.maxProperties = schemaPart.maxProperties;
+        if (schemaPart.properties) {
+            const nestedRequired = schemaPart.required || [];
+            internalItem.properties = Object.entries(schemaPart.properties).map(([propName, propSchema]) => 
+                mapJsonToInternal(propSchema, { name: propName, required: nestedRequired.includes(propName) }));
+        }
+        if (schemaPart.additionalProperties === false) {
+            internalItem.additionalPropertiesType = 'disallow';
+        } else if (typeof schemaPart.additionalProperties === 'object') {
+            internalItem.additionalPropertiesType = 'schema';
+            internalItem.additionalPropertiesSchema = mapJsonToInternal(schemaPart.additionalProperties);
+        } else {
+            internalItem.additionalPropertiesType = 'allow';
+        }
     } else if (type === 'array' && schemaPart.items) {
         internalItem.items = mapJsonToInternal(schemaPart.items);
     } else if (type === 'oneOf' && schemaPart.oneOf) {

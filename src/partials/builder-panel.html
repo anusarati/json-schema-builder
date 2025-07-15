@@ -64,6 +64,28 @@
                         <span class="ml-2 text-sm font-medium text-slate-600 dark:text-slate-300">Include <code>$schema</code> property</span>
                     </label>
                 </div>
+                <div id="rootObjectControlsContainer" class="hidden space-y-4 pt-4 border-t border-slate-200 dark:border-slate-800">
+                    <h3 class="text-base font-semibold text-slate-700 dark:text-slate-200">Root Object Validation</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                         <div>
+                            <label for="rootMinProperties">Min Properties</label>
+                            <input type="number" id="rootMinProperties">
+                        </div>
+                        <div>
+                            <label for="rootMaxProperties">Max Properties</label>
+                            <input type="number" id="rootMaxProperties">
+                        </div>
+                    </div>
+                    <div>
+                        <label for="rootAdditionalPropertiesType">Additional Properties</label>
+                        <select id="rootAdditionalPropertiesType">
+                            <option value="allow">Allow</option>
+                            <option value="disallow">Disallow</option>
+                            <option value="schema">Validate with Schema</option>
+                        </select>
+                    </div>
+                    <div id="rootAdditionalPropertiesSchemaContainer" class="hidden"></div>
+                </div>
             </div>
 
             <div id="rootSchemaDefinitionContainer" class="space-y-4">
@@ -73,6 +95,10 @@
                 </div>
                 <div id="rootActionControls" class="flex gap-2"></div>
                 <div id="schemaBuilderRoot" class="space-y-4"></div>
+            </div>
+
+            <div id="rootConditionalContainer" class="space-y-4 p-4 bg-slate-100 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-800 hidden">
+                <!-- Root conditional builder will be rendered here -->
             </div>
             
             <div class="space-y-4 p-4 bg-slate-100 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-800">

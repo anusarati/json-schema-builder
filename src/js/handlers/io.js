@@ -138,8 +138,13 @@ export function handleImportFile(event) {
 function parseAndLoadRootSchema(schema) {
     const activeSchema = getActiveSchemaState();
     
+    // Clear all existing definitions and root-level schemas
     activeSchema.nextId = 0;
     activeSchema.definitions = [];
+    activeSchema.ifSchema = null;
+    activeSchema.thenSchema = null;
+    activeSchema.elseSchema = null;
+    activeSchema.additionalPropertiesSchema = null;
     
     if (schema.type === 'function' && schema.function) {
         activeSchema.rootSchemaType = 'function';
@@ -162,6 +167,19 @@ function parseAndLoadRootSchema(schema) {
         if (schema.$defs) {
             activeSchema.definitions = Object.entries(schema.$defs).map(([name, defSchema]) => 
                 mapJsonToInternal(defSchema, {name, isDefinition: true}));
+        }
+
+        // Map root-level conditional and additional properties
+        if (schema.if) activeSchema.ifSchema = mapJsonToInternal(schema.if);
+        if (schema.then) activeSchema.thenSchema = mapJsonToInternal(schema.then);
+        if (schema.else) activeSchema.elseSchema = mapJsonToInternal(schema.else);
+        if (schema.additionalProperties === false) {
+            activeSchema.additionalPropertiesType = 'disallow';
+        } else if (typeof schema.additionalProperties === 'object') {
+            activeSchema.additionalPropertiesType = 'schema';
+            activeSchema.additionalPropertiesSchema = mapJsonToInternal(schema.additionalProperties);
+        } else {
+            activeSchema.additionalPropertiesType = 'allow';
         }
 
         const keyword = ['oneOf', 'allOf', 'anyOf'].find(k => schema[k]);

@@ -67,6 +67,11 @@
 .nested-level.array-items { @apply border-teal-500; }
 .nested-level.oneof-options { @apply border-violet-500; }
 .nested-level.defs-properties { @apply border-amber-500; }
+.nested-level.additional-properties { @apply border-rose-500; }
+.nested-level.if-schema { @apply border-green-500; }
+.nested-level.then-schema { @apply border-blue-500; }
+.nested-level.else-schema { @apply border-orange-500; }
+
 
 /* Drag & Drop visual feedback */
 .drag-handle { @apply cursor-grab; }

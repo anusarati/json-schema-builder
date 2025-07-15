@@ -2,6 +2,7 @@ import { appState, getActiveSchemaState } from './state.js';
 import { dom } from './dom.js';
 import { generateAndDisplaySchema } from './schema.js';
 import { renderItem } from './components/Item.js';
+import { renderNestedBuilder } from './components/Nested.js';
 import { ICONS } from './config.js';
 import { handleAddRootItem } from './handlers/item.js';
 import { handleAddSchema, handleSwitchSchema, handleCloseSchema } from './handlers/tabs.js';
@@ -85,6 +86,73 @@ function renderRootControls() {
     }
 }
 
+function renderRootConditionals() {
+    const activeSchema = getActiveSchemaState();
+    const container = dom.rootConditionalContainer;
+    container.innerHTML = '';
+    
+    // Only show for types that support it
+    if (!['object', 'array'].includes(activeSchema.rootSchemaType)) {
+        container.classList.add('hidden');
+        return;
+    }
+    container.classList.remove('hidden');
+
+    const renderSection = (type, schema) => {
+        if (schema) {
+            return `
+                <div class="conditional-section">
+                    <div class="flex justify-between items-center mb-2">
+                        <h5 class="text-sm font-semibold uppercase text-${type === 'if' ? 'green' : (type === 'then' ? 'blue' : 'orange')}-600 dark:text-${type === 'if' ? 'green' : (type === 'then' ? 'blue' : 'orange')}-400">${type}</h5>
+                        <button data-action="root-delete-conditional" data-conditional-type="${type}" title="Delete ${type.toUpperCase()} Schema" class="p-1 rounded-md text-red-500 hover:bg-red-100 dark:hover:bg-red-900/20 transition-colors">${ICONS.trash}</button>
+                    </div>
+                    <div id="root_nested_${type}"></div>
+                </div>`;
+        }
+        return `
+            <button data-action="root-add-conditional" data-conditional-type="${type}" class="flex items-center gap-2 mt-2 px-3 py-1.5 text-xs font-medium text-white bg-slate-600 rounded-md hover:bg-slate-700 dark:bg-slate-600 dark:hover:bg-slate-500 transition-colors">
+                ${ICONS.plus} Add ${type.toUpperCase()} Schema
+            </button>`;
+    };
+    
+    const isCollapsed = activeSchema.isConditionalCollapsed;
+
+    container.innerHTML = `
+        <div data-action="root-toggle-conditional-collapse" class="flex items-center justify-between cursor-pointer">
+            <h2 class="text-lg font-semibold text-slate-700 dark:text-slate-200">Root Conditional Validation</h2>
+            <span class="toggle-chevron p-1.5 text-slate-500 dark:text-slate-400 transition-transform duration-200 ${
+                isCollapsed ? '' : 'rotate-180'
+            }">${ICONS.chevronUp}</span>
+        </div>
+        <div class="collapsible-content space-y-4 mt-2 ${isCollapsed ? 'collapsed' : ''}">
+            ${renderSection('if', activeSchema.ifSchema)}
+            ${activeSchema.ifSchema ? renderSection('then', activeSchema.thenSchema) : ''}
+            ${activeSchema.ifSchema ? renderSection('else', activeSchema.elseSchema) : ''}
+        </div>
+    `;
+
+    // Now render the builders inside the containers
+    if (!isCollapsed) {
+        if (activeSchema.ifSchema) {
+            const ifContainer = container.querySelector('#root_nested_if');
+            ifContainer.appendChild(renderNestedBuilder([activeSchema.ifSchema], 'if-schema', null, null, null, { isSubSchema: true }));
+        }
+        if (activeSchema.thenSchema) {
+            const thenContainer = container.querySelector('#root_nested_then');
+            thenContainer.appendChild(renderNestedBuilder([activeSchema.thenSchema], 'then-schema', null, null, null, { isSubSchema: true }));
+        }
+        if (activeSchema.elseSchema) {
+            const elseContainer = container.querySelector('#root_nested_else');
+            elseContainer.appendChild(renderNestedBuilder([activeSchema.elseSchema], 'else-schema', null, null, null, { isSubSchema: true }));
+        }
+        const conditionalCollapsible = container.querySelector('.collapsible-content');
+        if(conditionalCollapsible) {
+            setTimeout(() => (conditionalCollapsible.style.maxHeight = `${conditionalCollapsible.scrollHeight}px`), 0);
+        }
+    }
+}
+
+
 export function render() {
     updateUndoRedoButtons();
 
@@ -99,6 +167,7 @@ export function render() {
     dom.leftPanelScroller.classList.remove('hidden');
 
     const isFunctionMode = activeSchema.rootSchemaType === 'function';
+    const isObjectMode = activeSchema.rootSchemaType === 'object';
     const rootType = activeSchema.rootSchemaType;
 
     // Update global schema details
@@ -111,6 +180,23 @@ export function render() {
 
     dom.includeSchemaToggle.checked = activeSchema.includeSchemaProperty;
     dom.schemaPropertyToggleContainer.classList.toggle('hidden', isFunctionMode);
+
+    // Render root object controls
+    dom.rootObjectControlsContainer.classList.toggle('hidden', !isObjectMode);
+    if(isObjectMode) {
+        dom.rootMinProperties.value = activeSchema.minProperties !== undefined ? activeSchema.minProperties : '';
+        dom.rootMaxProperties.value = activeSchema.maxProperties !== undefined ? activeSchema.maxProperties : '';
+        dom.rootAdditionalPropertiesType.value = activeSchema.additionalPropertiesType;
+        const additionalSchemaContainer = dom.rootAdditionalPropertiesSchemaContainer;
+        additionalSchemaContainer.innerHTML = '';
+        if (activeSchema.additionalPropertiesType === 'schema' && activeSchema.additionalPropertiesSchema) {
+            additionalSchemaContainer.classList.remove('hidden');
+            additionalSchemaContainer.appendChild(renderNestedBuilder([activeSchema.additionalPropertiesSchema], 'additional-properties', null, null, null, { isSubSchema: true }));
+        } else {
+            additionalSchemaContainer.classList.add('hidden');
+        }
+    }
+
 
     renderRootControls();
     dom.schemaBuilderRoot.innerHTML = '';
@@ -142,6 +228,8 @@ export function render() {
     } else { // Primitives
         dom.schemaBuilderRoot.appendChild(renderItem(activeSchema.schemaDefinition, { isRootPrimitive: true }));
     }
+
+    renderRootConditionals();
 
     dom.definitionsBuilderRoot.innerHTML = '';
      if(activeSchema.definitions.length > 0) {

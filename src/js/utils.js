@@ -72,7 +72,12 @@ export function showToast(message, type = 'success') {
 function findRecursive(itemId, currentItem) {
     if (!currentItem || typeof currentItem !== 'object') return null;
 
-    const subContainers = ['properties', 'items', 'oneOfSchemas'];
+    // Updated to include all possible schema containers
+    const subContainers = [
+        'properties', 'items', 'oneOfSchemas', 'allOfSchemas', 'anyOfSchemas', 
+        'notSchema', 'additionalPropertiesSchema', 'ifSchema', 'thenSchema', 'elseSchema'
+    ];
+
     for (const prop of subContainers) {
         if (currentItem[prop]) {
             const container = currentItem[prop];
@@ -85,7 +90,7 @@ function findRecursive(itemId, currentItem) {
                     const foundInChildren = findRecursive(itemId, item);
                     if (foundInChildren) return foundInChildren;
                 }
-            } else if (typeof container === 'object' && container !== null) { // For array.items
+            } else if (typeof container === 'object' && container !== null) { // For single schema properties
                 if (container.id === itemId) {
                     return { item: container, parentObject: currentItem, key: prop };
                 }
@@ -106,6 +111,19 @@ function findRecursive(itemId, currentItem) {
 export function findItemAndParent(itemId) {
     const activeSchema = getActiveSchemaState();
     if (!activeSchema) return null;
+
+    // Search root-level single schemas first
+    const rootSubSchemaKeys = ['additionalPropertiesSchema', 'ifSchema', 'thenSchema', 'elseSchema'];
+    for (const key of rootSubSchemaKeys) {
+        const schema = activeSchema[key];
+        if (schema) {
+             if (schema.id === itemId) {
+                return { item: schema, parentObject: activeSchema, key };
+            }
+            const foundInChildren = findRecursive(itemId, schema);
+            if (foundInChildren) return foundInChildren;
+        }
+    }
 
     // Search top-level collections: schemaDefinition (root items) and definitions ($defs)
     const topLevelCollections = ['schemaDefinition', 'definitions'];

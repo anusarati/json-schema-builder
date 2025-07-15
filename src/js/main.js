@@ -4,8 +4,8 @@ import { initDom, dom } from './dom.js';
 import { FIELD_TYPES, ICONS } from './config.js';
 import { render, updateUndoRedoButtons } from './renderer.js';
 import { handleCollapseAll, handleExpandAll, initResizablePanels, toggleTheme, toggleDensity } from './handlers/ui.js';
-import { handleClearSchema, handleGlobalDetailChange, handleRootTypeChange, handleSchemaPropertyToggle } from './handlers/state.js';
-import { handleAddDefinition, handleDeleteItem, handleItemUpdate, handleMoveItem, handleToggleCollapse, handleCopyPropertyJson } from './handlers/item.js';
+import { handleClearSchema, handleGlobalDetailChange, handleRootTypeChange, handleSchemaPropertyToggle, handleRootAdditionalPropertiesChange } from './handlers/state.js';
+import { handleAddDefinition, handleDeleteItem, handleItemUpdate, handleMoveItem, handleToggleCollapse, handleCopyPropertyJson, handleAddConditionalSchema, handleDeleteConditionalSchema, handleAddNestedItem, handleAddRootConditionalSchema, handleDeleteRootConditionalSchema, handleToggleConditionalCollapse, handleToggleRootConditionalCollapse } from './handlers/item.js';
 import { handleCopySchema, handleExportSchema, handleImportFile, handleOpenPropertyImport, handleOpenRootPropertiesImport, handleParseAndLoad, closeImportModal, openRootImportModal } from './handlers/io.js';
 import { handleDragEnd, handleDragLeave, handleDragOver, handleDragStart, handleDrop } from './handlers/dnd.js';
 import { undo, redo } from './history.js';
@@ -76,6 +76,7 @@ function init() {
     dom.collapseAllBtn.addEventListener('click', handleCollapseAll);
     dom.expandAllBtn.addEventListener('click', handleExpandAll);
     dom.rootSchemaTypeSelector.addEventListener('change', handleRootTypeChange);
+    dom.rootAdditionalPropertiesType.addEventListener('change', handleRootAdditionalPropertiesChange);
     dom.addDefinitionBtn.addEventListener('click', handleAddDefinition);
     dom.copySchemaBtn.addEventListener('click', handleCopySchema);
     dom.exportBtn.addEventListener('click', handleExportSchema);
@@ -85,7 +86,7 @@ function init() {
     window.addEventListener('builder:historychange', updateUndoRedoButtons);
 
     // --- Global Inputs: Real-time update on 'input', commit to history on 'change' ---
-    ['schemaTitle', 'schemaDescription'].forEach(id => {
+    ['schemaTitle', 'schemaDescription', 'rootMinProperties', 'rootMaxProperties'].forEach(id => {
         const el = dom[id];
         el.addEventListener('input', (e) => handleGlobalDetailChange(e, { commit: false }));
         el.addEventListener('change', (e) => handleGlobalDetailChange(e, { commit: true }));
@@ -136,19 +137,32 @@ function init() {
     builderPanel.addEventListener('click', e => {
         const actionTarget = e.target.closest('[data-action]');
         if (!actionTarget) return;
-
-        const card = actionTarget.closest('.schema-item-card');
-        if (!card) return;
         
-        const itemId = card.dataset.itemId;
+        const card = actionTarget.closest('.schema-item-card');
         const action = actionTarget.dataset.action;
+        const conditionalType = actionTarget.dataset.conditionalType;
+
+        if (action.startsWith('root-')) {
+            if (action === 'root-add-conditional' && conditionalType) handleAddRootConditionalSchema(conditionalType);
+            else if (action === 'root-delete-conditional' && conditionalType) handleDeleteRootConditionalSchema(conditionalType);
+            else if (action === 'root-toggle-conditional-collapse') handleToggleRootConditionalCollapse();
+            return;
+        }
+
+        if (!card) return;
+        const itemId = card.dataset.itemId;
+        const property = actionTarget.dataset.property;
 
         if (action === 'delete') handleDeleteItem(itemId);
-        if (action === 'moveUp') handleMoveItem(itemId, 'up');
-        if (action === 'moveDown') handleMoveItem(itemId, 'down');
-        if (action === 'toggleCollapse') handleToggleCollapse(itemId);
-        if (action === 'import-property') handleOpenPropertyImport(itemId);
-        if (action === 'copy-json') handleCopyPropertyJson(itemId, actionTarget);
+        else if (action === 'moveUp') handleMoveItem(itemId, 'up');
+        else if (action === 'moveDown') handleMoveItem(itemId, 'down');
+        else if (action === 'toggleCollapse') handleToggleCollapse(itemId);
+        else if (action === 'import-property') handleOpenPropertyImport(itemId);
+        else if (action === 'copy-json') handleCopyPropertyJson(itemId, actionTarget);
+        else if (action === 'add-nested' && property) handleAddNestedItem(itemId, property);
+        else if (action === 'add-conditional' && conditionalType) handleAddConditionalSchema(itemId, conditionalType);
+        else if (action === 'delete-conditional' && conditionalType) handleDeleteConditionalSchema(itemId, conditionalType);
+        else if (action === 'toggle-conditional-collapse') handleToggleConditionalCollapse(itemId);
     });
 
     builderPanel.addEventListener('dragstart', handleDragStart);

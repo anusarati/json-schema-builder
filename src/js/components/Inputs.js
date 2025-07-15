@@ -51,21 +51,46 @@ export function renderNumberInputs(item) {
             <h4 class="text-sm font-medium text-slate-600 dark:text-slate-300">Number Validation</h4>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                    <label for="minimum_${item.id}" class="text-xs font-medium text-slate-500 dark:text-slate-400">Minimum</label>
+                    <label for="minimum_${item.id}" class="text-xs font-medium text-slate-500 dark:text-slate-400">Minimum (>=)</label>
                     <input type="number" id="minimum_${item.id}" data-property="minimum" value="${item.minimum !== undefined ? item.minimum : ''}">
                 </div>
                 <div>
-                    <label for="maximum_${item.id}" class="text-xs font-medium text-slate-500 dark:text-slate-400">Maximum</label>
+                    <label for="exclusiveMinimum_${item.id}" class="text-xs font-medium text-slate-500 dark:text-slate-400">Exclusive Minimum (>)</label>
+                    <input type="number" id="exclusiveMinimum_${item.id}" data-property="exclusiveMinimum" value="${item.exclusiveMinimum !== undefined ? item.exclusiveMinimum : ''}">
+                </div>
+                <div>
+                    <label for="maximum_${item.id}" class="text-xs font-medium text-slate-500 dark:text-slate-400">Maximum (<=)</label>
                     <input type="number" id="maximum_${item.id}" data-property="maximum" value="${item.maximum !== undefined ? item.maximum : ''}">
                 </div>
-                <div class="flex items-center pt-2">
-                    <input type="checkbox" id="exclusiveMinimum_${item.id}" data-property="exclusiveMinimum" ${item.exclusiveMinimum ? 'checked' : ''}>
-                    <label for="exclusiveMinimum_${item.id}" class="ml-2 text-sm text-slate-700 dark:text-slate-300">Exclusive Minimum</label>
+                <div>
+                    <label for="exclusiveMaximum_${item.id}" class="text-xs font-medium text-slate-500 dark:text-slate-400">Exclusive Maximum (<)</label>
+                    <input type="number" id="exclusiveMaximum_${item.id}" data-property="exclusiveMaximum" value="${item.exclusiveMaximum !== undefined ? item.exclusiveMaximum : ''}">
                 </div>
-                <div class="flex items-center pt-2">
-                    <input type="checkbox" id="exclusiveMaximum_${item.id}" data-property="exclusiveMaximum" ${item.exclusiveMaximum ? 'checked' : ''}>
-                    <label for="exclusiveMaximum_${item.id}" class="ml-2 text-sm text-slate-700 dark:text-slate-300">Exclusive Maximum</label>
+            </div>
+        </div>`;
+}
+
+export function renderObjectInputs(item) {
+    return `
+        <div class="p-3 bg-slate-100 dark:bg-slate-700/50 rounded-md border border-slate-200 dark:border-slate-700 space-y-4">
+            <h4 class="text-sm font-medium text-slate-600 dark:text-slate-300">Object Validation</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="minProperties_${item.id}" class="text-xs font-medium text-slate-500 dark:text-slate-400">Min Properties</label>
+                    <input type="number" id="minProperties_${item.id}" data-property="minProperties" value="${item.minProperties !== undefined ? item.minProperties : ''}">
                 </div>
+                <div>
+                    <label for="maxProperties_${item.id}" class="text-xs font-medium text-slate-500 dark:text-slate-400">Max Properties</label>
+                    <input type="number" id="maxProperties_${item.id}" data-property="maxProperties" value="${item.maxProperties !== undefined ? item.maxProperties : ''}">
+                </div>
+            </div>
+            <div>
+                <label for="additionalPropertiesType_${item.id}" class="text-xs font-medium text-slate-500 dark:text-slate-400">Additional Properties</label>
+                <select id="additionalPropertiesType_${item.id}" data-property="additionalPropertiesType">
+                    <option value="allow" ${item.additionalPropertiesType === 'allow' ? 'selected' : ''}>Allow</option>
+                    <option value="disallow" ${item.additionalPropertiesType === 'disallow' ? 'selected' : ''}>Disallow</option>
+                    <option value="schema" ${item.additionalPropertiesType === 'schema' ? 'selected' : ''}>Validate with Schema</option>
+                </select>
             </div>
         </div>`;
 }

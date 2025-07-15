@@ -10,6 +10,16 @@ export function createDefaultSchemaState() {
         schemaDefinition: [],
         definitions: [],
         nextId: 0,
+        // New properties for root object validation
+        additionalPropertiesType: 'allow', // 'allow', 'disallow', 'schema'
+        additionalPropertiesSchema: null,
+        minProperties: undefined,
+        maxProperties: undefined,
+        // New properties for root conditional validation
+        ifSchema: null,
+        thenSchema: null,
+        elseSchema: null,
+        isConditionalCollapsed: false,
     };
 }
 
