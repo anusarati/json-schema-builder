@@ -55,8 +55,8 @@ This project uses [Vite](https://vitejs.dev/) as a build tool to handle modern J
 
 1.  **Clone the repository:**
     ```bash
-    git clone https://github.com/your-username/your-repo-name.git
-    cd your-repo-name
+    git clone https://github.com/anusarati/json-schema-builder.git
+    cd json-schema-builder
     ```
 2.  **Install Dependencies:**
     ```bash
@@ -83,7 +83,7 @@ When you are ready to deploy the application (e.g., to GitHub Pages), you can cr
 
 ## Feedback & Contributions
 
-This is an active project! If you have feedback, ideas, or find a bug, please [open an issue](https://github.com/your-username/your-repo-name/issues).
+This is an active project! If you have feedback, ideas, or find a bug, please [open an issue](https://github.com/anusarati/json-schema-builder/issues).
 
 Pull requests are welcome and appreciated. If you'd like to contribute, please feel free to fork the repository and submit a PR.
 
