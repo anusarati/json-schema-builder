@@ -5,7 +5,7 @@ import { FIELD_TYPES, ICONS } from './config.js';
 import { render, updateUndoRedoButtons } from './renderer.js';
 import { handleCollapseAll, handleExpandAll, initResizablePanels, toggleTheme, toggleDensity } from './handlers/ui.js';
 import { handleClearSchema, handleGlobalDetailChange, handleRootTypeChange, handleSchemaPropertyToggle, handleRootAdditionalPropertiesChange } from './handlers/state.js';
-import { handleAddDefinition, handleDeleteItem, handleItemUpdate, handleMoveItem, handleToggleCollapse, handleCopyPropertyJson, handleAddConditionalSchema, handleDeleteConditionalSchema, handleAddNestedItem, handleAddRootConditionalSchema, handleDeleteRootConditionalSchema, handleToggleConditionalCollapse, handleToggleRootConditionalCollapse } from './handlers/item.js';
+import { handleAddDefinition, handleDeleteItem, handleItemUpdate, handleMoveItem, handleToggleCollapse, handleCopyPropertyJson, handleAddConditionalSchema, handleDeleteConditionalSchema, handleAddNestedItem, handleAddRootConditionalSchema, handleDeleteRootConditionalSchema, handleToggleConditionalCollapse, handleToggleRootConditionalCollapse, handleToggleValidationCollapse, handleToggleRootValidationCollapse } from './handlers/item.js';
 import { handleCopySchema, handleExportSchema, handleImportFile, handleOpenPropertyImport, handleOpenRootPropertiesImport, handleParseAndLoad, closeImportModal, openRootImportModal } from './handlers/io.js';
 import { handleDragEnd, handleDragLeave, handleDragOver, handleDragStart, handleDrop } from './handlers/dnd.js';
 import { undo, redo } from './history.js';
@@ -146,6 +146,7 @@ function init() {
             if (action === 'root-add-conditional' && conditionalType) handleAddRootConditionalSchema(conditionalType);
             else if (action === 'root-delete-conditional' && conditionalType) handleDeleteRootConditionalSchema(conditionalType);
             else if (action === 'root-toggle-conditional-collapse') handleToggleRootConditionalCollapse();
+            else if (action === 'root-toggle-validation-collapse') handleToggleRootValidationCollapse();
             return;
         }
 
@@ -157,6 +158,7 @@ function init() {
         else if (action === 'moveUp') handleMoveItem(itemId, 'up');
         else if (action === 'moveDown') handleMoveItem(itemId, 'down');
         else if (action === 'toggleCollapse') handleToggleCollapse(itemId);
+        else if (action === 'toggle-validation-collapse') handleToggleValidationCollapse(itemId);
         else if (action === 'import-property') handleOpenPropertyImport(itemId);
         else if (action === 'copy-json') handleCopyPropertyJson(itemId, actionTarget);
         else if (action === 'add-nested' && property) handleAddNestedItem(itemId, property);

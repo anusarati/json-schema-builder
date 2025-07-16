@@ -15,6 +15,7 @@ export function createDefaultSchemaState() {
         additionalPropertiesSchema: null,
         minProperties: undefined,
         maxProperties: undefined,
+        isRootValidationCollapsed: false,
         // New properties for root conditional validation
         ifSchema: null,
         thenSchema: null,

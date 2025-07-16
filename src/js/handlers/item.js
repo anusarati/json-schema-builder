@@ -85,6 +85,19 @@ export function handleToggleRootConditionalCollapse() {
     render(); // Re-render to update the chevron and container class
 }
 
+export function handleToggleValidationCollapse(itemId) {
+    const found = findItemAndParent(itemId);
+    if (!found || !found.item) return;
+    found.item.isValidationCollapsed = !found.item.isValidationCollapsed;
+    render();
+}
+
+export function handleToggleRootValidationCollapse() {
+    const activeSchema = getActiveSchemaState();
+    activeSchema.isRootValidationCollapsed = !activeSchema.isRootValidationCollapsed;
+    render();
+}
+
 
 export function handleItemUpdate(itemId, inputElement, options = {}) {
     const { commit = false } = options;

@@ -259,6 +259,12 @@ export function renderItem(item, options = {}) {
     setTimeout(() => (collapsible.style.maxHeight = `${collapsible.scrollHeight}px`), 0);
   }
 
+  // Handle validation panel collapse separately
+  const validationPanelCollapsible = itemDiv.querySelector('.validation-panel .collapsible-content');
+  if (validationPanelCollapsible && !item.isValidationCollapsed) {
+    setTimeout(() => (validationPanelCollapsible.style.maxHeight = `${validationPanelCollapsible.scrollHeight}px`), 0);
+  }
+
   // Handle conditional collapse separately
   const conditionalCollapsible = itemDiv.querySelector('#conditional_builder_' + item.id + ' .collapsible-content');
   if(conditionalCollapsible && !item.isConditionalCollapsed) {

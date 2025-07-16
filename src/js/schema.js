@@ -48,6 +48,7 @@ export function createSchemaItem(initialData = {}) {
         thenSchema: initialData.thenSchema || null,
         elseSchema: initialData.elseSchema || null,
         isConditionalCollapsed: initialData.isConditionalCollapsed || false,
+        isValidationCollapsed: initialData.isValidationCollapsed || false,
     };
 
     if (item.type === 'object') {

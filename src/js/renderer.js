@@ -182,8 +182,16 @@ export function render() {
     dom.schemaPropertyToggleContainer.classList.toggle('hidden', isFunctionMode);
 
     // Render root object controls
-    dom.rootObjectControlsContainer.classList.toggle('hidden', !isObjectMode);
-    if(isObjectMode) {
+    const rootObjectControlsContainer = dom.rootObjectControlsContainer;
+    rootObjectControlsContainer.classList.toggle('hidden', !isObjectMode);
+    if (isObjectMode) {
+        const isCollapsed = activeSchema.isRootValidationCollapsed;
+        const chevron = rootObjectControlsContainer.querySelector('.toggle-chevron');
+        const content = rootObjectControlsContainer.querySelector('.collapsible-content');
+
+        chevron.innerHTML = ICONS.chevronUp;
+        chevron.classList.toggle('rotate-180', !isCollapsed);
+
         dom.rootMinProperties.value = activeSchema.minProperties !== undefined ? activeSchema.minProperties : '';
         dom.rootMaxProperties.value = activeSchema.maxProperties !== undefined ? activeSchema.maxProperties : '';
         dom.rootAdditionalPropertiesType.value = activeSchema.additionalPropertiesType;
@@ -194,6 +202,28 @@ export function render() {
             additionalSchemaContainer.appendChild(renderNestedBuilder([activeSchema.additionalPropertiesSchema], 'additional-properties', null, null, null, { isSubSchema: true }));
         } else {
             additionalSchemaContainer.classList.add('hidden');
+        }
+
+        // Animation logic
+        if (isCollapsed) {
+            content.classList.add('collapsed');
+            content.style.maxHeight = '0';
+        } else {
+            content.classList.remove('collapsed');
+            
+            // KEY FIX: Force a reflow to ensure the browser calculates the layout of the
+            // newly visible element before we try to read its scrollHeight.
+            void content.offsetHeight; 
+
+            content.style.maxHeight = `${content.scrollHeight}px`;
+            
+            // After the transition, remove the inline style to allow the content
+            // to resize dynamically (e.g. for responsive design).
+            content.addEventListener('transitionend', () => {
+                if (!content.classList.contains('collapsed')) {
+                    content.style.maxHeight = 'none';
+                }
+            }, { once: true });
         }
     }
 
