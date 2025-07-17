@@ -6,7 +6,7 @@ import { render, updateUndoRedoButtons } from './renderer.js';
 import { handleCollapseAll, handleExpandAll, initResizablePanels, toggleTheme, toggleDensity } from './handlers/ui.js';
 import { handleClearSchema, handleGlobalDetailChange, handleRootTypeChange, handleSchemaPropertyToggle, handleRootAdditionalPropertiesChange } from './handlers/state.js';
 import { handleAddDefinition, handleDeleteItem, handleItemUpdate, handleMoveItem, handleToggleCollapse, handleCopyPropertyJson, handleAddConditionalSchema, handleDeleteConditionalSchema, handleAddNestedItem, handleAddRootConditionalSchema, handleDeleteRootConditionalSchema, handleToggleConditionalCollapse, handleToggleRootConditionalCollapse, handleToggleValidationCollapse, handleToggleRootValidationCollapse } from './handlers/item.js';
-import { handleCopySchema, handleExportSchema, handleImportFile, handleOpenPropertyImport, handleOpenRootPropertiesImport, handleParseAndLoad, closeImportModal, openRootImportModal } from './handlers/io.js';
+import { handleCopySchema, handleExportSchema, handleImportFile, handleOpenPropertyImport, handleOpenRootPropertiesImport, handleParseAndLoad, closeImportModal, openRootImportModal, openPydanticModal } from './handlers/io.js';
 import { handleDragEnd, handleDragLeave, handleDragOver, handleDragStart, handleDrop } from './handlers/dnd.js';
 import { undo, redo } from './history.js';
 import { findItemAndParent } from './utils.js';
@@ -96,6 +96,7 @@ function init() {
 
     // --- Modal Listeners ---
     dom.importBtn.addEventListener('click', openRootImportModal);
+    dom.pydanticBtn.addEventListener('click', openPydanticModal);
     dom.closeImportModalBtn.addEventListener('click', closeImportModal);
     dom.importFileBtn.addEventListener('click', () => dom.importFileInput.click());
     dom.importFileInput.addEventListener('change', handleImportFile);

@@ -5,6 +5,8 @@ import { showToast, findItemAndParent } from '../utils.js';
 import { createSchemaItem, mapJsonToInternal } from '../schema.js';
 import { render } from '../renderer.js';
 import { handleParseProperty, handleParseRootProperties } from './item.js';
+import * as pydanticManager from '../pydantic/manager.js';
+import { schemaToPydantic } from '../pydantic/generator.js';
 
 export async function handleCopySchema() {
     const schemaText = dom.schemaOutput.textContent;
@@ -242,4 +244,105 @@ export function handleParseAndLoad() {
     } catch (error) {
         showToast(`Import failed: ${error.message}`, "error");
     }
+}
+
+
+// --- Pydantic Conversion ---
+
+let isPydanticModalWired = false;
+
+function switchPydanticTab(targetTab) {
+    const tabs = dom.pydanticModalTabs.querySelectorAll('.pydantic-tab');
+    tabs.forEach(tab => {
+        const isTarget = tab.dataset.tab === targetTab;
+        tab.classList.toggle('active-tab', isTarget);
+    });
+    dom.pydanticToPydanticTab.classList.toggle('hidden', targetTab !== 'toPydantic');
+    dom.pydanticFromPydanticTab.classList.toggle('hidden', targetTab !== 'fromPydantic');
+}
+
+function handleSchemaToPydantic() {
+    dom.pydanticLoader.classList.add('hidden'); // Should not be needed here
+    try {
+        const schemaText = dom.schemaOutput.textContent;
+        const schema = JSON.parse(schemaText);
+        const pydanticCode = schemaToPydantic(schema);
+        dom.pydanticOutput.textContent = pydanticCode;
+        hljs.highlightElement(dom.pydanticOutput);
+    } catch (error) {
+        const errorMessage = `// JS-based conversion failed:\n// ${error.message}`;
+        dom.pydanticOutput.textContent = errorMessage;
+        console.error("Pydantic conversion failed:", error);
+        showToast(`Pydantic conversion failed.`, 'error');
+    }
+}
+
+async function handlePydanticToSchema() {
+    const pydanticCode = dom.pydanticInput.value;
+    if (!pydanticCode.trim()) {
+        showToast('Pydantic code is empty.', 'error');
+        return;
+    }
+    
+    dom.parsePydanticBtn.disabled = true;
+    dom.pydanticLoader.classList.remove('hidden');
+
+    try {
+        await pydanticManager.initPyodide(); // This will show status updates
+        dom.pydanticLoaderText.textContent = 'Converting from Pydantic...';
+        const schemaJson = await pydanticManager.pydanticToJson(pydanticCode);
+
+        if (!confirm('This will replace the content of the current tab. Are you sure?')) {
+            return;
+        }
+        const importedObj = JSON.parse(schemaJson);
+        parseAndLoadRootSchema(importedObj);
+        render();
+        showToast("Schema imported from Pydantic successfully!");
+        closePydanticModal();
+
+    } catch (error) {
+        console.error("Pydantic import failed:", error);
+        showToast(`Pydantic import failed: ${error.message}`, 'error');
+    } finally {
+        dom.parsePydanticBtn.disabled = false;
+        dom.pydanticLoader.classList.add('hidden');
+    }
+}
+
+async function handleCopyPydantic() {
+    const code = dom.pydanticOutput.textContent;
+    if (!code || code.startsWith('//')) return;
+    try {
+        await navigator.clipboard.writeText(code);
+        showToast('Pydantic code copied!', 'success');
+    } catch (err) {
+        showToast('Failed to copy code.', 'error');
+    }
+}
+
+export function closePydanticModal() {
+    dom.pydanticModal.classList.add('hidden');
+    dom.pydanticOutput.textContent = '';
+    dom.pydanticInput.value = '';
+}
+
+export function openPydanticModal() {
+    if (!isPydanticModalWired) {
+        dom.closePydanticModalBtn.addEventListener('click', closePydanticModal);
+        dom.pydanticModal.addEventListener('click', (e) => {
+            if (e.target === dom.pydanticModal) closePydanticModal();
+        });
+        dom.pydanticModalTabs.addEventListener('click', (e) => {
+            const tabButton = e.target.closest('.pydantic-tab');
+            if (tabButton) switchPydanticTab(tabButton.dataset.tab);
+        });
+        dom.copyPydanticBtn.addEventListener('click', handleCopyPydantic);
+        dom.parsePydanticBtn.addEventListener('click', handlePydanticToSchema);
+        isPydanticModalWired = true;
+    }
+    
+    dom.pydanticModal.classList.remove('hidden');
+    switchPydanticTab('toPydantic');
+    handleSchemaToPydantic();
 }

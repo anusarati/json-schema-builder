@@ -1,6 +1,7 @@
 import builderPanelHtml from '../partials/builder-panel.html?raw';
 import viewerPanelHtml from '../partials/viewer-panel.html?raw';
 import importModalHtml from '../partials/import-modal.html?raw';
+import pydanticModalHtml from '../partials/pydantic-modal.html?raw';
 import toastContainerHtml from '../partials/toast-container.html?raw';
 
 /**
@@ -24,6 +25,7 @@ export function loadApp() {
             ${viewerPanelHtml}
         </div>
         ${importModalHtml}
+        ${pydanticModalHtml}
         ${toastContainerHtml}
     `;
 }
