@@ -25,6 +25,7 @@ This JSON Schema Builder is a **power tool** that solves these problems by provi
 *   🎨 **Visual Hierarchy:** A true GUI to add, edit, and reorder properties with a few clicks.
 *   🧪 **UI Density Control:** Choose between Comfortable, Compact, and Dense layouts to suit your workflow.
 *   🤖 **LLM Function Calling Mode:** A dedicated mode to correctly structure `name`, `description`, and `parameters` for OpenAI models.
+*   🐍 **Pydantic Model I/O:** Instantly generate a Pydantic `BaseModel` from your schema for use in Python backends. You can also import a schema directly from Pydantic source code.
 *   🔄 **Real-time Generation:** Your schema is updated and validated with every change.
 *   📑 **Multi-Tab Interface:** Work on multiple schemas in the same session.
 *   📥 **Import/Export:** Import existing JSON to kickstart your work, or export your final schema as a `.json` file.

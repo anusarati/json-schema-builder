@@ -268,10 +268,16 @@ function handleSchemaToPydantic() {
         const schema = JSON.parse(schemaText);
         const pydanticCode = schemaToPydantic(schema);
         dom.pydanticOutput.textContent = pydanticCode;
+        // FIX: By removing the 'data-highlighted' attribute that highlight.js adds,
+        // we can force it to re-process the element on subsequent views.
+        dom.pydanticOutput.removeAttribute('data-highlighted');
         hljs.highlightElement(dom.pydanticOutput);
     } catch (error) {
         const errorMessage = `// JS-based conversion failed:\n// ${error.message}`;
         dom.pydanticOutput.textContent = errorMessage;
+        // FIX: Also highlight error messages and ensure they can be re-highlighted.
+        dom.pydanticOutput.removeAttribute('data-highlighted');
+        hljs.highlightElement(dom.pydanticOutput);
         console.error("Pydantic conversion failed:", error);
         showToast(`Pydantic conversion failed.`, 'error');
     }
