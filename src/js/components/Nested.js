@@ -30,6 +30,7 @@ export function renderNestedBuilder(items, containerClass, addBtnText, parentId,
             if (!nestedItem) return; // Guard against initially null 'not' schema
             const newOptions = { 
                 ...parentOptions,
+                isDefinition: false, // A property inside a definition is not a definition itself.
                 isRootArrayItem: false,
                 isRootPrimitive: false,
                 isSubSchema: ['oneof-options', 'allOf-options', 'anyOf-options', 'not-options', 'if-schema', 'then-schema', 'else-schema', 'additional-properties'].includes(containerClass),
