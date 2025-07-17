@@ -131,8 +131,7 @@ export function renderItem(item, options = {}) {
       </div>
     </div>
 
-    <div class="collapsible-content ${item.isCollapsed ? 'collapsed' : ''}"
-         style="max-height:${item.isCollapsed ? 0 : '2000px'}; margin-top:${item.isCollapsed ? 0 : '1rem'};">
+    <div class="collapsible-content ${item.isCollapsed ? 'collapsed' : ''}">
       <div class="space-y-4">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           ${
@@ -250,25 +249,6 @@ export function renderItem(item, options = {}) {
           const elseContainer = itemDiv.querySelector(`#nested_else_${item.id}`);
           if(elseContainer) elseContainer.appendChild(renderNestedBuilder([item.elseSchema], 'else-schema', null, null, null, options));
       }
-  }
-
-
-  /* ---------- initial max-height for smooth open ---------- */
-  const collapsible = itemDiv.querySelector('.collapsible-content');
-  if (collapsible && !item.isCollapsed) {
-    setTimeout(() => (collapsible.style.maxHeight = `${collapsible.scrollHeight}px`), 0);
-  }
-
-  // Handle validation panel collapse separately
-  const validationPanelCollapsible = itemDiv.querySelector('.validation-panel .collapsible-content');
-  if (validationPanelCollapsible && !item.isValidationCollapsed) {
-    setTimeout(() => (validationPanelCollapsible.style.maxHeight = `${validationPanelCollapsible.scrollHeight}px`), 0);
-  }
-
-  // Handle conditional collapse separately
-  const conditionalCollapsible = itemDiv.querySelector('#conditional_builder_' + item.id + ' .collapsible-content');
-  if(conditionalCollapsible && !item.isConditionalCollapsed) {
-    setTimeout(() => (conditionalCollapsible.style.maxHeight = `${conditionalCollapsible.scrollHeight}px`), 0);
   }
 
   return itemDiv;

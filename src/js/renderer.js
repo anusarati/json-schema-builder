@@ -145,10 +145,6 @@ function renderRootConditionals() {
             const elseContainer = container.querySelector('#root_nested_else');
             elseContainer.appendChild(renderNestedBuilder([activeSchema.elseSchema], 'else-schema', null, null, null, { isSubSchema: true }));
         }
-        const conditionalCollapsible = container.querySelector('.collapsible-content');
-        if(conditionalCollapsible) {
-            setTimeout(() => (conditionalCollapsible.style.maxHeight = `${conditionalCollapsible.scrollHeight}px`), 0);
-        }
     }
 }
 
@@ -204,27 +200,8 @@ export function render() {
             additionalSchemaContainer.classList.add('hidden');
         }
 
-        // Animation logic
-        if (isCollapsed) {
-            content.classList.add('collapsed');
-            content.style.maxHeight = '0';
-        } else {
-            content.classList.remove('collapsed');
-            
-            // KEY FIX: Force a reflow to ensure the browser calculates the layout of the
-            // newly visible element before we try to read its scrollHeight.
-            void content.offsetHeight; 
-
-            content.style.maxHeight = `${content.scrollHeight}px`;
-            
-            // After the transition, remove the inline style to allow the content
-            // to resize dynamically (e.g. for responsive design).
-            content.addEventListener('transitionend', () => {
-                if (!content.classList.contains('collapsed')) {
-                    content.style.maxHeight = 'none';
-                }
-            }, { once: true });
-        }
+        // Set collapsed state. Height is managed by the global handler at the end of render().
+        content.classList.toggle('collapsed', isCollapsed);
     }
 
 
@@ -269,6 +246,25 @@ export function render() {
     }
 
     generateAndDisplaySchema();
+
+    // Defer height adjustments until after the current browser paint cycle.
+    // This ensures all DOM elements are in place and have a calculated height,
+    // preventing race conditions where parent heights are calculated before children are expanded.
+    setTimeout(() => {
+        const allCollapsibles = document.querySelectorAll('#left-panel-scroller .collapsible-content:not(.collapsed)');
+        allCollapsibles.forEach(collapsible => {
+            // Set max-height to its own scrollHeight. This primes it for future collapse animations.
+            collapsible.style.maxHeight = `${collapsible.scrollHeight}px`;
+
+            // Add a listener to set max-height to 'none' after it finishes expanding.
+            // This allows the container to grow if its content changes dynamically (e.g. responsive changes).
+            collapsible.addEventListener('transitionend', () => {
+                if (!collapsible.classList.contains('collapsed')) {
+                    collapsible.style.maxHeight = 'none';
+                }
+            }, { once: true });
+        });
+    }, 0);
 
     // Notify history module that a state change has occurred and been rendered.
     window.dispatchEvent(new CustomEvent('builder:rendered'));

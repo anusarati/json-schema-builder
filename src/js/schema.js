@@ -370,6 +370,9 @@ export function generateAndDisplaySchema() {
 export function mapJsonToInternal(schemaPart, options = {}) {
     const { name = '', required = false, isDefinition = false } = options;
     
+    // Helper to ensure a value is a finite number, otherwise undefined.
+    const getNumeric = val => (typeof val === 'number' && isFinite(val)) ? val : undefined;
+
     let type = schemaPart.type;
     if (schemaPart.$ref) type = '$ref';
     else if (schemaPart.oneOf) type = 'oneOf';
@@ -378,26 +381,27 @@ export function mapJsonToInternal(schemaPart, options = {}) {
     else if (schemaPart.not) type = 'not';
     else if (!type && (schemaPart.properties || schemaPart.if)) type = 'object';
 
-    // Handle modern and legacy exclusive min/max
-    let { minimum, maximum, exclusiveMinimum, exclusiveMaximum } = schemaPart;
-    if (typeof schemaPart.exclusiveMinimum === 'number') {
-        exclusiveMinimum = schemaPart.exclusiveMinimum;
-        minimum = undefined; // Per 2020-12, these are independent. Clear the other for our UI.
-    } else if (schemaPart.exclusiveMinimum === true && schemaPart.minimum !== undefined) {
-        exclusiveMinimum = schemaPart.minimum; // Legacy conversion
-        minimum = undefined;
-    } else {
-        exclusiveMinimum = undefined; // Not present or not a boolean `true`
+    // Handle modern and legacy exclusive min/max, sanitizing inputs
+    let { minimum, maximum } = schemaPart;
+    let exclusiveMinimum, exclusiveMaximum;
+
+    // Draft 2019-09 and later: exclusiveMinimum/Maximum are numbers
+    if (getNumeric(schemaPart.exclusiveMinimum) !== undefined) {
+        exclusiveMinimum = getNumeric(schemaPart.exclusiveMinimum);
+        minimum = undefined; // Per spec, they are independent, but for UI clarity we separate them.
     }
-    
-    if (typeof schemaPart.exclusiveMaximum === 'number') {
-        exclusiveMaximum = schemaPart.exclusiveMaximum;
+    // Draft-4 to Draft-7: exclusiveMinimum/Maximum are booleans
+    else if (schemaPart.exclusiveMinimum === true && getNumeric(schemaPart.minimum) !== undefined) {
+        exclusiveMinimum = getNumeric(schemaPart.minimum);
+        minimum = undefined;
+    }
+
+    if (getNumeric(schemaPart.exclusiveMaximum) !== undefined) {
+        exclusiveMaximum = getNumeric(schemaPart.exclusiveMaximum);
         maximum = undefined;
-    } else if (schemaPart.exclusiveMaximum === true && schemaPart.maximum !== undefined) {
-        exclusiveMaximum = schemaPart.maximum; // Legacy conversion
+    } else if (schemaPart.exclusiveMaximum === true && getNumeric(schemaPart.maximum) !== undefined) {
+        exclusiveMaximum = getNumeric(schemaPart.maximum);
         maximum = undefined;
-    } else {
-        exclusiveMaximum = undefined;
     }
 
     const internalItem = createSchemaItem({
@@ -405,14 +409,14 @@ export function mapJsonToInternal(schemaPart, options = {}) {
         description: schemaPart.description,
         pattern: schemaPart.pattern,
         format: schemaPart.format,
-        minLength: schemaPart.minLength,
-        maxLength: schemaPart.maxLength,
-        minimum: minimum,
-        maximum: maximum,
-        exclusiveMinimum: exclusiveMinimum,
-        exclusiveMaximum: exclusiveMaximum,
-        minItems: schemaPart.minItems,
-        maxItems: schemaPart.maxItems,
+        minLength: getNumeric(schemaPart.minLength),
+        maxLength: getNumeric(schemaPart.maxLength),
+        minimum: getNumeric(minimum),
+        maximum: getNumeric(maximum),
+        exclusiveMinimum: getNumeric(exclusiveMinimum),
+        exclusiveMaximum: getNumeric(exclusiveMaximum),
+        minItems: getNumeric(schemaPart.minItems),
+        maxItems: getNumeric(schemaPart.maxItems),
         uniqueItems: !!schemaPart.uniqueItems,
         defaultValue: schemaPart.default !== undefined ? JSON.stringify(schemaPart.default, null, 2) : undefined,
         examples: schemaPart.examples !== undefined ? JSON.stringify(schemaPart.examples, null, 2) : undefined,
@@ -426,8 +430,8 @@ export function mapJsonToInternal(schemaPart, options = {}) {
     if (schemaPart.else) internalItem.elseSchema = mapJsonToInternal(schemaPart.else);
 
     if (type === 'object') {
-        internalItem.minProperties = schemaPart.minProperties;
-        internalItem.maxProperties = schemaPart.maxProperties;
+        internalItem.minProperties = getNumeric(schemaPart.minProperties);
+        internalItem.maxProperties = getNumeric(schemaPart.maxProperties);
         if (schemaPart.properties) {
             const nestedRequired = schemaPart.required || [];
             internalItem.properties = Object.entries(schemaPart.properties).map(([propName, propSchema]) => 
