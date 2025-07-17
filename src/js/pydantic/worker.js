@@ -97,8 +97,8 @@ def convert(pydantic_code):
         
     schema = pydantic_class.model_json_schema()
     
-    if 'title' in schema:
-        del schema['title']
+    # BUG FIX: The title from the Pydantic model was being deleted.
+    # This has been removed to preserve the intended title.
 
     return json.dumps(schema, indent=2)
 `;
