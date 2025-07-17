@@ -72,32 +72,167 @@ export function handleDeleteRootConditionalSchema(conditionalType) {
     }
 }
 
-export function handleToggleConditionalCollapse(itemId) {
+export function handleToggleConditionalCollapse(itemId, triggerElement) {
     const found = findItemAndParent(itemId);
     if (!found || !found.item) return;
-    found.item.isConditionalCollapsed = !found.item.isConditionalCollapsed;
-    render(); // Re-render to update the chevron and container class
+
+    const content = triggerElement.nextElementSibling;
+    const chevron = triggerElement.querySelector('.toggle-chevron');
+    if (!content || !chevron || content.dataset.isAnimating) return;
+    
+    content.dataset.isAnimating = 'true';
+    const isExpanding = found.item.isConditionalCollapsed;
+
+    if (isExpanding) {
+        content.classList.remove('collapsed');
+        chevron.classList.add('rotate-180');
+        content.style.maxHeight = `${content.scrollHeight}px`;
+        content.addEventListener('transitionend', () => {
+            if (!content.classList.contains('collapsed')) content.style.maxHeight = 'none';
+            delete content.dataset.isAnimating;
+        }, { once: true });
+    } else {
+        content.style.maxHeight = `${content.scrollHeight}px`;
+        void content.offsetWidth; // Force reflow to ensure the height is applied before transitioning
+        requestAnimationFrame(() => {
+            content.classList.add('collapsed');
+            chevron.classList.remove('rotate-180');
+            content.style.maxHeight = '0';
+        });
+        content.addEventListener('transitionend', () => { delete content.dataset.isAnimating; }, { once: true });
+    }
+
+    found.item.isConditionalCollapsed = !isExpanding;
 }
 
-export function handleToggleRootConditionalCollapse() {
+export function handleToggleRootConditionalCollapse(triggerElement) {
     const activeSchema = getActiveSchemaState();
-    activeSchema.isConditionalCollapsed = !activeSchema.isConditionalCollapsed;
-    render(); // Re-render to update the chevron and container class
+    const content = triggerElement.nextElementSibling;
+    const chevron = triggerElement.querySelector('.toggle-chevron');
+    if (!content || !chevron || content.dataset.isAnimating) return;
+
+    content.dataset.isAnimating = 'true';
+    const isExpanding = activeSchema.isConditionalCollapsed;
+
+    if (isExpanding) {
+        content.classList.remove('collapsed');
+        chevron.classList.add('rotate-180');
+        content.style.maxHeight = `${content.scrollHeight}px`;
+        content.addEventListener('transitionend', () => { 
+            if (!content.classList.contains('collapsed')) content.style.maxHeight = 'none';
+            delete content.dataset.isAnimating;
+        }, { once: true });
+    } else {
+        content.style.maxHeight = `${content.scrollHeight}px`;
+        void content.offsetWidth; // Force reflow
+        requestAnimationFrame(() => {
+            content.classList.add('collapsed');
+            chevron.classList.remove('rotate-180');
+            content.style.maxHeight = '0';
+        });
+        content.addEventListener('transitionend', () => { delete content.dataset.isAnimating; }, { once: true });
+    }
+    
+    activeSchema.isConditionalCollapsed = !isExpanding;
 }
 
-export function handleToggleValidationCollapse(itemId) {
+export function handleToggleValidationCollapse(itemId, triggerElement) {
     const found = findItemAndParent(itemId);
     if (!found || !found.item) return;
-    found.item.isValidationCollapsed = !found.item.isValidationCollapsed;
-    render();
+
+    const content = triggerElement.nextElementSibling;
+    const chevron = triggerElement.querySelector('.toggle-chevron');
+    if (!content || !chevron || content.dataset.isAnimating) return;
+    
+    content.dataset.isAnimating = 'true';
+    const isExpanding = found.item.isValidationCollapsed;
+
+    if (isExpanding) {
+        content.classList.remove('collapsed');
+        chevron.classList.add('rotate-180');
+        content.style.maxHeight = `${content.scrollHeight}px`;
+        content.addEventListener('transitionend', () => {
+            if (!content.classList.contains('collapsed')) content.style.maxHeight = 'none';
+            delete content.dataset.isAnimating;
+        }, { once: true });
+    } else {
+        content.style.maxHeight = `${content.scrollHeight}px`;
+        void content.offsetWidth; // Force reflow
+        requestAnimationFrame(() => {
+            content.classList.add('collapsed');
+            chevron.classList.remove('rotate-180');
+            content.style.maxHeight = '0';
+        });
+        content.addEventListener('transitionend', () => { delete content.dataset.isAnimating; }, { once: true });
+    }
+
+    found.item.isValidationCollapsed = !isExpanding;
 }
 
-export function handleToggleRootValidationCollapse() {
+export function handleToggleRootValidationCollapse(triggerElement) {
     const activeSchema = getActiveSchemaState();
-    activeSchema.isRootValidationCollapsed = !activeSchema.isRootValidationCollapsed;
-    render();
+    const content = triggerElement.nextElementSibling;
+    const chevron = triggerElement.querySelector('.toggle-chevron');
+    if (!content || !chevron || content.dataset.isAnimating) return;
+
+    content.dataset.isAnimating = 'true';
+    const isExpanding = activeSchema.isRootValidationCollapsed;
+
+    if (isExpanding) {
+        content.classList.remove('collapsed');
+        chevron.classList.add('rotate-180');
+        content.style.maxHeight = `${content.scrollHeight}px`;
+        content.addEventListener('transitionend', () => { 
+            if (!content.classList.contains('collapsed')) content.style.maxHeight = 'none';
+            delete content.dataset.isAnimating;
+        }, { once: true });
+    } else {
+        content.style.maxHeight = `${content.scrollHeight}px`;
+        void content.offsetWidth; // Force reflow
+        requestAnimationFrame(() => {
+            content.classList.add('collapsed');
+            chevron.classList.remove('rotate-180');
+            content.style.maxHeight = '0';
+        });
+        content.addEventListener('transitionend', () => { delete content.dataset.isAnimating; }, { once: true });
+    }
+    
+    activeSchema.isRootValidationCollapsed = !isExpanding;
 }
 
+export function handleToggleCollapse(itemId, triggerElement) {
+    const found = findItemAndParent(itemId);
+    if (!found || !found.item) return;
+
+    const card = triggerElement.closest('.schema-item-card');
+    const content = card?.querySelector('.collapsible-content');
+    const chevron = card?.querySelector('.toggle-chevron');
+    if (!card || !content || !chevron || content.dataset.isAnimating) return;
+
+    content.dataset.isAnimating = 'true';
+    const isExpanding = found.item.isCollapsed;
+
+    if (isExpanding) {
+        content.classList.remove('collapsed');
+        chevron.classList.add('rotate-180');
+        content.style.maxHeight = `${content.scrollHeight}px`;
+        content.addEventListener('transitionend', () => {
+            if (!content.classList.contains('collapsed')) content.style.maxHeight = 'none';
+            delete content.dataset.isAnimating;
+        }, { once: true });
+    } else {
+        content.style.maxHeight = `${content.scrollHeight}px`;
+        void content.offsetWidth; // Force reflow
+        requestAnimationFrame(() => {
+            content.classList.add('collapsed');
+            chevron.classList.remove('rotate-180');
+            content.style.maxHeight = '0';
+        });
+        content.addEventListener('transitionend', () => { delete content.dataset.isAnimating; }, { once: true });
+    }
+
+    found.item.isCollapsed = !isExpanding;
+}
 
 export function handleItemUpdate(itemId, inputElement, options = {}) {
     const { commit = false } = options;
@@ -187,38 +322,6 @@ export function handleItemUpdate(itemId, inputElement, options = {}) {
             snapshotNow();
         }
     }
-}
-
-export function handleToggleCollapse(itemId) {
-    const found = findItemAndParent(itemId);
-    if (!found || !found.item) return;
-
-    const card = document.querySelector(`.schema-item-card[data-item-id="${itemId}"]`);
-    const content = card?.querySelector('.collapsible-content');
-    const chevron = card?.querySelector('.toggle-chevron');
-    if (!card || !content || !chevron) return;
-
-    const willExpand = found.item.isCollapsed;
-
-    if (willExpand) {
-        content.classList.remove('collapsed');
-        content.style.maxHeight = `${content.scrollHeight}px`;
-        chevron.classList.add('rotate-180');
-
-        content.addEventListener('transitionend', function handler() {
-            content.style.maxHeight = 'none';
-            content.removeEventListener('transitionend', handler);
-        });
-    } else {
-        content.style.maxHeight = `${content.scrollHeight}px`;
-        requestAnimationFrame(() => {
-            content.classList.add('collapsed');
-            content.style.maxHeight = '0';
-            chevron.classList.remove('rotate-180');
-        });
-    }
-
-    found.item.isCollapsed = !found.item.isCollapsed;
 }
 
 export function handleDeleteItem(itemId) {

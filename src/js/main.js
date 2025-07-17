@@ -29,7 +29,7 @@ function handleSchemaViewClick(e) {
                 const itemState = findItemAndParent(parent.dataset.itemId);
                 if (itemState && itemState.item.isCollapsed) {
                     // This function handles both state and DOM update
-                    handleToggleCollapse(parent.dataset.itemId);
+                    handleToggleCollapse(parent.dataset.itemId, parent.querySelector('[data-action="toggleCollapse"]'));
                 }
             }
             parent = parent.parentElement;
@@ -147,8 +147,8 @@ function init() {
         if (action.startsWith('root-')) {
             if (action === 'root-add-conditional' && conditionalType) handleAddRootConditionalSchema(conditionalType);
             else if (action === 'root-delete-conditional' && conditionalType) handleDeleteRootConditionalSchema(conditionalType);
-            else if (action === 'root-toggle-conditional-collapse') handleToggleRootConditionalCollapse();
-            else if (action === 'root-toggle-validation-collapse') handleToggleRootValidationCollapse();
+            else if (action === 'root-toggle-conditional-collapse') handleToggleRootConditionalCollapse(actionTarget);
+            else if (action === 'root-toggle-validation-collapse') handleToggleRootValidationCollapse(actionTarget);
             return;
         }
 
@@ -159,14 +159,14 @@ function init() {
         if (action === 'delete') handleDeleteItem(itemId);
         else if (action === 'moveUp') handleMoveItem(itemId, 'up');
         else if (action === 'moveDown') handleMoveItem(itemId, 'down');
-        else if (action === 'toggleCollapse') handleToggleCollapse(itemId);
-        else if (action === 'toggle-validation-collapse') handleToggleValidationCollapse(itemId);
+        else if (action === 'toggleCollapse') handleToggleCollapse(itemId, actionTarget);
+        else if (action === 'toggle-validation-collapse') handleToggleValidationCollapse(itemId, actionTarget);
         else if (action === 'import-property') handleOpenPropertyImport(itemId);
         else if (action === 'copy-json') handleCopyPropertyJson(itemId, actionTarget);
         else if (action === 'add-nested' && property) handleAddNestedItem(itemId, property);
         else if (action === 'add-conditional' && conditionalType) handleAddConditionalSchema(itemId, conditionalType);
         else if (action === 'delete-conditional' && conditionalType) handleDeleteConditionalSchema(itemId, conditionalType);
-        else if (action === 'toggle-conditional-collapse') handleToggleConditionalCollapse(itemId);
+        else if (action === 'toggle-conditional-collapse') handleToggleConditionalCollapse(itemId, actionTarget);
     });
 
     builderPanel.addEventListener('dragstart', handleDragStart);
