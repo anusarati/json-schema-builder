@@ -10,6 +10,7 @@ import { handleCopySchema, handleExportSchema, handleImportFile, handleOpenPrope
 import { handleDragEnd, handleDragLeave, handleDragOver, handleDragStart, handleDrop } from './handlers/dnd.js';
 import { undo, redo } from './history.js';
 import { findItemAndParent } from './utils.js';
+import * as pydanticManager from './pydantic/manager.js';
 
 function handleSchemaViewClick(e) {
     const target = e.target.closest('[data-item-id]');
@@ -181,6 +182,9 @@ function init() {
     // --- Initial Setup ---
     initResizablePanels();
     render();
+
+    // Start loading Pyodide in the background.
+    pydanticManager.startPyodideInitialization();
 }
 
 /**
