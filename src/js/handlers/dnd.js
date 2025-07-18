@@ -3,10 +3,16 @@ import { findItemAndParent, showToast } from '../utils.js';
 import { render } from '../renderer.js';
 
 export function handleDragStart(e) {
-  // *** start ONLY when the user grabs the handle ***
-  if (!e.target.closest('.drag-handle')) return;
+  // The `dragstart` event's target is the element with `draggable="true"`.
+  // In our case, this is the header of a schema item card.
+  const header = e.target;
 
-  const card = e.target.closest('.schema-item-card');
+  // Verify we are dragging a header and not something else by mistake.
+  if (!header.classList.contains('card-header')) {
+    return;
+  }
+
+  const card = header.closest('.schema-item-card');
   if (card) {
     appState.draggedItemId = card.dataset.itemId;
     e.dataTransfer.setData('text/plain', appState.draggedItemId);

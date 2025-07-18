@@ -67,7 +67,7 @@ export function renderItem(item, options = {}) {
   itemDiv.className =
     'schema-item-card bg-white dark:bg-slate-800 p-4 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm transition-shadow ease-in-out duration-200';
   itemDiv.dataset.itemId = item.id;
-  itemDiv.draggable      = false;               // <— drag now happens ONLY on the handle
+  itemDiv.draggable      = false; // The card itself is not draggable, only its header.
 
   /* ---------- header text ---------- */
   let headerText  = item.name || '(unnamed)';
@@ -90,12 +90,12 @@ export function renderItem(item, options = {}) {
 
   /* ---------- template ---------- */
   itemDiv.innerHTML = `
-    <div ${canCollapse ? 'data-action="toggleCollapse"' : ''} class="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-700 ${canCollapse ? 'cursor-pointer' : ''}">
+    <div ${canCollapse ? 'data-action="toggleCollapse"' : ''} draggable="true" class="card-header flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-700 ${canCollapse ? 'cursor-grab' : ''}">
       <div class="flex items-center gap-3 min-w-0">
         ${
           !isRoot && !isRootNot
-            ? `<span class="drag-handle cursor-grab text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"
-                      title="Drag to reorder" draggable="true">${ICONS.move}</span>`
+            ? `<span class="drag-handle text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"
+                      title="Drag to reorder">${ICONS.move}</span>`
             : ''
         }
         <h3 class="field-title font-semibold truncate ${headerClass}" title="${headerText}">${headerText}</h3>
@@ -103,13 +103,13 @@ export function renderItem(item, options = {}) {
       <div class="flex items-center gap-1 flex-shrink-0">
         ${
           canImportProp
-            ? `<button data-action="import-property" title="Import JSON for this property" aria-label="Import JSON for this property"
+            ? `<button draggable="false" data-action="import-property" title="Import JSON for this property" aria-label="Import JSON for this property"
                        class="p-1.5 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 transition-colors">${ICONS.import}</button>`
             : ''
         }
         ${
           canCopyProp
-            ? `<button data-action="copy-json" title="Copy property JSON" aria-label="Copy property JSON"
+            ? `<button draggable="false" data-action="copy-json" title="Copy property JSON" aria-label="Copy property JSON"
                        class="p-1.5 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 transition-colors">${ICONS.copy}</button>`
             : ''
         }
@@ -123,9 +123,9 @@ export function renderItem(item, options = {}) {
         ${
           !isRoot && !isRootNot
             ? `
-          <button data-action="moveUp"   title="Move Up"   aria-label="Move field up"   class="p-1.5 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 transition-colors">${ICONS.chevronUp}</button>
-          <button data-action="moveDown" title="Move Down" aria-label="Move field down" class="p-1.5 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 transition-colors">${ICONS.chevronDown}</button>
-          <button data-action="delete"   title="Delete"    aria-label="Delete field"    class="p-1.5 rounded-md text-red-500 hover:bg-red-100 dark:hover:bg-red-900/20 transition-colors">${ICONS.trash}</button>`
+          <button draggable="false" data-action="moveUp"   title="Move Up"   aria-label="Move field up"   class="p-1.5 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 transition-colors">${ICONS.chevronUp}</button>
+          <button draggable="false" data-action="moveDown" title="Move Down" aria-label="Move field down" class="p-1.5 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 transition-colors">${ICONS.chevronDown}</button>
+          <button draggable="false" data-action="delete"   title="Delete"    aria-label="Delete field"    class="p-1.5 rounded-md text-red-500 hover:bg-red-100 dark:hover:bg-red-900/20 transition-colors">${ICONS.trash}</button>`
             : ''
         }
       </div>
