@@ -6,7 +6,7 @@ import { render, updateUndoRedoButtons } from './renderer.js';
 import { handleCollapseAll, handleExpandAll, initResizablePanels, toggleTheme, toggleDensity } from './handlers/ui.js';
 import { handleClearSchema, handleGlobalDetailChange, handleRootTypeChange, handleSchemaPropertyToggle, handleRootAdditionalPropertiesChange } from './handlers/state.js';
 import { handleAddDefinition, handleDeleteItem, handleItemUpdate, handleMoveItem, handleToggleCollapse, handleCopyPropertyJson, handleAddConditionalSchema, handleDeleteConditionalSchema, handleAddNestedItem, handleAddRootConditionalSchema, handleDeleteRootConditionalSchema, handleToggleConditionalCollapse, handleToggleRootConditionalCollapse, handleToggleValidationCollapse, handleToggleRootValidationCollapse } from './handlers/item.js';
-import { handleCopySchema, handleExportSchema, handleImportFile, handleOpenPropertyImport, handleOpenRootPropertiesImport, handleParseAndLoad, closeImportModal, openRootImportModal, openPydanticModal } from './handlers/io.js';
+import { handleCopySchema, handleExportSchema, handleImportFile, handleOpenPropertyImport, handleOpenRootPropertiesImport, handleParseAndLoad, closeImportModal, openRootImportModal, openPydanticModal, closePydanticModal } from './handlers/io.js';
 import { handleDragEnd, handleDragLeave, handleDragOver, handleDragStart, handleDrop } from './handlers/dnd.js';
 import { undo, redo } from './history.js';
 import { findItemAndParent } from './utils.js';
@@ -108,6 +108,20 @@ function init() {
 
     // --- Keyboard Shortcuts ---
     window.addEventListener('keydown', (e) => {
+        // Handle ESC to close modals globally, even when an input is focused.
+        if (e.key === 'Escape') {
+            if (!dom.importModal.classList.contains('hidden')) {
+                e.preventDefault();
+                closeImportModal();
+                return;
+            }
+            if (!dom.pydanticModal.classList.contains('hidden')) {
+                e.preventDefault();
+                closePydanticModal();
+                return;
+            }
+        }
+
         if (e.target.matches('input, textarea, select')) return;
 
         const isMac = navigator.platform.toUpperCase().includes('MAC');
