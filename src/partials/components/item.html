@@ -1,0 +1,35 @@
+<template id="schema-item-template">
+    <div class="schema-item-card bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm transition-shadow ease-in-out duration-200">
+        <div class="card-header flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-700" draggable="true">
+            <div class="flex items-center gap-3 min-w-0">
+                <span data-ref="dragHandle" class="drag-handle text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300" title="Drag to reorder"></span>
+                <h3 data-ref="headerText" class="field-title font-semibold truncate"></h3>
+            </div>
+            <div class="flex items-center gap-1 flex-shrink-0">
+                <button data-ref="importBtn" draggable="false" data-action="import-property" title="Import JSON for this property" aria-label="Import JSON for this property" class="p-1.5 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 transition-colors"></button>
+                <button data-ref="copyBtn" draggable="false" data-action="copy-json" title="Copy property JSON" aria-label="Copy property JSON" class="p-1.5 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 transition-colors"></button>
+                <span data-ref="collapseChevron" class="toggle-chevron p-1.5 text-slate-500 dark:text-slate-400 transition-transform duration-200"></span>
+                <button data-ref="moveUpBtn" draggable="false" data-action="moveUp" title="Move Up" aria-label="Move field up" class="p-1.5 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 transition-colors"></button>
+                <button data-ref="moveDownBtn" draggable="false" data-action="moveDown" title="Move field down" aria-label="Move field down" class="p-1.5 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 transition-colors"></button>
+                <button data-ref="deleteBtn" draggable="false" data-action="delete" title="Delete" aria-label="Delete field" class="p-1.5 rounded-md text-red-500 hover:bg-red-100 dark:hover:bg-red-900/20 transition-colors"></button>
+            </div>
+        </div>
+        <div data-ref="collapsibleContent" class="collapsible-content">
+            <div class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div data-ref="nameContainer">
+                        <label data-ref="nameLabel" class="block font-medium text-slate-600 dark:text-slate-400">Name</label>
+                        <input data-ref="nameInput" type="text" data-property="name" class="w-full mt-1 p-2 text-sm rounded-md transition-all duration-200 shadow-inner">
+                    </div>
+                    <div>
+                        <label data-ref="typeLabel" class="block font-medium text-slate-600 dark:text-slate-400">Type</label>
+                        <select data-ref="typeSelector" data-property="type" class="w-full mt-1 p-2 text-sm rounded-md transition-all duration-200 shadow-inner"></select>
+                    </div>
+                </div>
+                <div data-ref="typeSpecificContent" class="space-y-4"></div>
+                <div data-ref="nestedBuilder" class="mt-4"></div>
+                <div data-ref="conditionalBuilder"></div>
+            </div>
+        </div>
+    </div>
+</template>

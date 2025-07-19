@@ -1,4 +1,4 @@
-import { appState } from './state.js';
+import { appState, getActiveSchemaState } from './state.js';
 import { render } from './renderer.js';
 import { debounce } from './utils.js';
 
@@ -8,16 +8,15 @@ if (!('history' in appState)) {
     appState.isRestoring = false;
 }
 
-const serialise = () =>
-    JSON.stringify({
-        schemas: appState.schemas,
-        activeSchemaIndex: appState.activeSchemaIndex,
-    });
+const serialise = () => {
+    // Only serialize the state of the currently active schema
+    return JSON.stringify(getActiveSchemaState());
+}
 
 const restore = (snapshot) => {
     const parsed = JSON.parse(snapshot);
-    appState.schemas = parsed.schemas;
-    appState.activeSchemaIndex = parsed.activeSchemaIndex;
+    // Restore the state to the correct index in the schemas array
+    appState.schemas[appState.activeSchemaIndex] = parsed;
 };
 
 /**

@@ -82,10 +82,6 @@ export async function initPyodide() {
     await pyodideReadyPromise;
 }
 
-export function jsonToPydantic(jsonSchema) {
-    return postMessage('json-to-pydantic', { jsonSchema });
-}
-
 export function pydanticToJson(pydanticCode) {
     return postMessage('pydantic-to-json', { pydanticCode });
 }

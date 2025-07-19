@@ -3,6 +3,7 @@ import viewerPanelHtml from '../partials/viewer-panel.html?raw';
 import importModalHtml from '../partials/import-modal.html?raw';
 import pydanticModalHtml from '../partials/pydantic-modal.html?raw';
 import toastContainerHtml from '../partials/toast-container.html?raw';
+import itemTemplateHtml from '../partials/components/item.html?raw';
 
 /**
  * This is a synchronous function that builds the main application layout.
@@ -18,6 +19,9 @@ export function loadApp() {
 
     const resizerHtml = '<div id="resizer" class="resizer hidden md:block"></div>';
 
+    // Inject component templates into a container for easy cloning later.
+    const templatesContainer = `<div id="templates" hidden>${itemTemplateHtml}</div>`;
+
     appRoot.innerHTML = `
         <div id="main-container" class="flex flex-col md:flex-row h-screen w-full font-sans overflow-hidden">
             ${builderPanelHtml}
@@ -27,5 +31,6 @@ export function loadApp() {
         ${importModalHtml}
         ${pydanticModalHtml}
         ${toastContainerHtml}
+        ${templatesContainer}
     `;
 }
