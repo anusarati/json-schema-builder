@@ -415,7 +415,7 @@ export async function handleCopyPropertyJson(itemId, buttonElement) {
 
     const originalBtnHTML = buttonElement.innerHTML;
     try {
-        const schemaJson = buildSchemaFromItem(found.item);
+        const schemaJson = buildSchemaFromItem(found.item, {}, '');
         await navigator.clipboard.writeText(JSON.stringify(schemaJson, null, 2));
         showToast("Property JSON copied!");
         buttonElement.innerHTML = ICONS.check;

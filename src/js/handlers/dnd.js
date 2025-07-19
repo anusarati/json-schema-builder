@@ -2,13 +2,27 @@ import { appState } from '../state.js';
 import { findItemAndParent, showToast } from '../utils.js';
 import { render } from '../renderer.js';
 
-export function handleDragStart(e) {
-  // The `dragstart` event's target is the element with `draggable="true"`.
-  // In our case, this is the header of a schema item card.
-  const header = e.target;
+/**
+ * Gets the actual element from an event target, handling cases where
+ * the target might be a text node.
+ * @param {EventTarget|null} target The event target.
+ * @returns {HTMLElement|null} The element, or null.
+ */
+function getElementFromTarget(target) {
+    if (!target) return null;
+    // If the target is a text node (nodeType 3), get its parent element.
+    return target.nodeType === 3 ? target.parentNode : target;
+}
 
-  // Verify we are dragging a header and not something else by mistake.
-  if (!header.classList.contains('card-header')) {
+
+export function handleDragStart(e) {
+  const targetElement = getElementFromTarget(e.target);
+  if (!targetElement) return;
+
+  // We only care about drags that start within a card's header.
+  const header = targetElement.closest('.card-header');
+  if (!header) {
+    e.preventDefault();
     return;
   }
 
@@ -22,8 +36,12 @@ export function handleDragStart(e) {
 }
 
 export function handleDragEnd(e) {
-  const card = e.target.closest('.schema-item-card');
-  if (card) card.classList.remove('dragging');
+  // Use a global selector to find the dragged item, which is more robust.
+  const draggedCard = document.querySelector('.schema-item-card.dragging');
+  if (draggedCard) {
+    draggedCard.classList.remove('dragging');
+  }
+  
   document
     .querySelectorAll('.drop-zone-active')
     .forEach((dz) => dz.classList.remove('drop-zone-active'));
@@ -33,7 +51,11 @@ export function handleDragEnd(e) {
 export function handleDragOver(e) {
   if (!appState.draggedItemId) return;
   e.preventDefault();
-  const card = e.target.closest('.schema-item-card');
+
+  const targetElement = getElementFromTarget(e.target);
+  if (!targetElement) return;
+
+  const card = targetElement.closest('.schema-item-card');
   if (card && card.dataset.itemId !== appState.draggedItemId) {
     e.dataTransfer.dropEffect = 'move';
     card.classList.add('drop-zone-active');
@@ -41,8 +63,13 @@ export function handleDragOver(e) {
 }
 
 export function handleDragLeave(e) {
-  const card = e.target.closest('.schema-item-card');
-  if (card) card.classList.remove('drop-zone-active');
+  const targetElement = getElementFromTarget(e.target);
+  if (!targetElement) return;
+  
+  const card = targetElement.closest('.schema-item-card');
+  if (card) {
+    card.classList.remove('drop-zone-active');
+  }
 }
 
 export function handleDrop(e) {
@@ -51,7 +78,10 @@ export function handleDrop(e) {
 
   if (!appState.draggedItemId) return;
 
-  const targetCard = e.target.closest('.schema-item-card');
+  const targetElement = getElementFromTarget(e.target);
+  if (!targetElement) return;
+
+  const targetCard = targetElement.closest('.schema-item-card');
   if (targetCard) targetCard.classList.remove('drop-zone-active');
 
   if (
