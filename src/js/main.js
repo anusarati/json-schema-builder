@@ -120,6 +120,15 @@ function init() {
 
     // --- Event Delegation for Builder Panel ---
     const builderPanel = dom.leftPanelScroller;
+
+    // Store the original value on focus to correctly handle definition renames on change/blur.
+    builderPanel.addEventListener('focusin', e => {
+        const target = e.target;
+        if (target.matches('input[type="text"], input[type="number"], textarea')) {
+            target.dataset.originalValue = target.value;
+        }
+    });
+
     builderPanel.addEventListener('input', e => {
         const target = e.target;
         if (target.matches('input:not([type="checkbox"]), textarea')) {

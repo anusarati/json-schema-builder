@@ -1,6 +1,6 @@
 import { appState, getActiveSchemaState } from '../state.js';
 import { createSchemaItem, generateAndDisplaySchema, mapJsonToInternal, buildSchemaFromItem } from '../schema.js';
-import { findItemAndParent, showToast } from '../utils.js';
+import { findItemAndParent, showToast, traverseSchema } from '../utils.js';
 import { render } from '../renderer.js';
 import { ICONS } from '../config.js';
 import { snapshotNow } from '../history.js';
@@ -255,32 +255,11 @@ export function handleItemUpdate(itemId, inputElement, options = {}) {
         value = value.split(',').map((s) => s.trim()).filter(Boolean);
     }
 
+    // Update the model in the state
     item[property] = value;
 
-    // --- START: NEW MUTUAL EXCLUSION LOGIC ---
-    const card = inputElement.closest('.schema-item-card');
-    if (card && value !== undefined) { // Only clear if a value was actually entered
-        if (property === 'minimum') {
-            item.exclusiveMinimum = undefined;
-            const exMinInput = card.querySelector(`input[data-property="exclusiveMinimum"]`);
-            if (exMinInput) exMinInput.value = '';
-        } else if (property === 'exclusiveMinimum') {
-            item.minimum = undefined;
-            const minInput = card.querySelector(`input[data-property="minimum"]`);
-            if (minInput) minInput.value = '';
-        } else if (property === 'maximum') {
-            item.exclusiveMaximum = undefined;
-            const exMaxInput = card.querySelector(`input[data-property="exclusiveMaximum"]`);
-            if (exMaxInput) exMaxInput.value = '';
-        } else if (property === 'exclusiveMaximum') {
-            item.maximum = undefined;
-            const maxInput = card.querySelector(`input[data-property="maximum"]`);
-            if (maxInput) maxInput.value = '';
-        }
-    }
-    // --- END: NEW MUTUAL EXCLUSION LOGIC ---
-
-    if (property === 'name') {
+    // Visually update the title in real-time as the user types, without a full render
+    if (!commit && property === 'name') {
         const card = inputElement.closest('.schema-item-card');
         const title = card?.querySelector('.field-title');
         if (title) {
@@ -290,37 +269,60 @@ export function handleItemUpdate(itemId, inputElement, options = {}) {
         }
     }
 
-    // If additionalPropertiesType changes, we might need to re-render
-    if (property === 'additionalPropertiesType' && value !== oldAdditionalPropertiesType) {
-        if (value === 'schema' && !item.additionalPropertiesSchema) {
-            item.additionalPropertiesSchema = createSchemaItem({ type: 'string' });
-        }
-        render();
-        return; // Full render handles snapshot
-    }
-
+    // --- Logic for structural changes that require a full re-render ---
     if (property === 'type' && value !== oldType) {
-        item.properties = [];
-        item.items = null;
-        item.oneOfSchemas = [];
-        item.allOfSchemas = [];
-        item.anyOfSchemas = [];
-        item.notSchema = null;
+        item.properties = []; item.items = null; item.oneOfSchemas = [];
+        item.allOfSchemas = []; item.anyOfSchemas = []; item.notSchema = null;
         item.ref = '';
-
         if (value === 'object') item.properties = [];
         if (value === 'array') item.items = createSchemaItem({ type: 'string' });
         if (value === 'oneOf') item.oneOfSchemas = [];
         if (value === 'allOf') item.allOfSchemas = [];
         if (value === 'anyOf') item.anyOfSchemas = [];
         if (value === 'not') item.notSchema = createSchemaItem({ type: 'string' });
+        render(); // Major structural change, re-render immediately.
+        return;
+    }
 
-        render(); // This triggers an immediate snapshot via the 'builder:rendered' event.
-    } else {
-        generateAndDisplaySchema();
-        if (commit) {
-            snapshotNow();
+    if (property === 'additionalPropertiesType' && value !== oldAdditionalPropertiesType) {
+        if (value === 'schema' && !item.additionalPropertiesSchema) {
+            item.additionalPropertiesSchema = createSchemaItem({ type: 'string' });
         }
+        render(); // Adds/removes a nested builder, so re-render.
+        return;
+    }
+
+    // --- Logic that only runs on "commit" (e.g., blur/change event) ---
+    if (commit) {
+        // Check for a confirmed definition rename
+        if (item.isDefinition && property === 'name') {
+            const originalName = inputElement.dataset.originalValue;
+            const newName = value;
+            if (typeof originalName === 'string' && newName && originalName !== newName) {
+                const activeSchema = getActiveSchemaState();
+                const oldRef = `#/$defs/${originalName}`;
+                const newRef = `#/$defs/${newName}`;
+
+                const updateRefCallback = (schemaItem) => {
+                    if (schemaItem.type === '$ref' && schemaItem.ref === oldRef) {
+                        schemaItem.ref = newRef;
+                    }
+                };
+                
+                traverseSchema(updateRefCallback, activeSchema.schemaDefinition, activeSchema.definitions, activeSchema.ifSchema, activeSchema.thenSchema, activeSchema.elseSchema, activeSchema.additionalPropertiesSchema);
+                
+                render(); // Re-render to update all $ref dropdowns. This handles history.
+                return;
+            }
+        }
+    }
+
+    // --- Default Action ---
+    // For simple input changes, just regenerate the right-side viewer.
+    generateAndDisplaySchema();
+    if (commit) {
+        // For committed changes that weren't a full render, snapshot the history.
+        snapshotNow();
     }
 }
 

@@ -62,6 +62,48 @@ export function showToast(message, type = 'success') {
     setTimeout(removeToast, 5000);
 }
 
+/**
+ * Recursively traverses all items in a schema structure and applies a callback.
+ * @param {Function} callback - The function to call for each item.
+ * @param {...(object|object[]|null)} collections - The top-level collections or items to start traversal from.
+ */
+export function traverseSchema(callback, ...collections) {
+    const visited = new Set();
+
+    function recurse(item) {
+        if (!item || typeof item !== 'object' || (item.id && visited.has(item.id))) {
+            return;
+        }
+        if(item.id) visited.add(item.id);
+
+        callback(item);
+
+        const subContainers = [
+            'properties', 'items', 'oneOfSchemas', 'allOfSchemas', 'anyOfSchemas', 
+            'notSchema', 'additionalPropertiesSchema', 'ifSchema', 'thenSchema', 'elseSchema'
+        ];
+
+        for (const prop of subContainers) {
+            const container = item[prop];
+            if (container) {
+                if (Array.isArray(container)) {
+                    container.forEach(recurse);
+                } else if (typeof container === 'object') {
+                    recurse(container);
+                }
+            }
+        }
+    }
+
+    collections.forEach(collection => {
+        if (!collection) return;
+        if (Array.isArray(collection)) {
+            collection.forEach(recurse);
+        } else if (typeof collection === 'object') {
+            recurse(collection);
+        }
+    });
+}
 
 /**
  * A dedicated recursive helper function. It only knows how to search *inside* an item.
