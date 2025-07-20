@@ -137,6 +137,16 @@
 }
 
 @layer utilities {
+    /*
+     * FIX: Force highlight.js background to be transparent.
+     * This allows the container's background color to show through, ensuring
+     * consistency with the app's theme. The text colors from the hljs theme
+     * will still apply for syntax highlighting.
+     */
+    .hljs {
+        @apply !bg-transparent;
+    }
+
     /* Custom scrollbar for a polished look */
     ::-webkit-scrollbar { @apply w-2 h-2; }
     ::-webkit-scrollbar-track { @apply bg-slate-200 dark:bg-slate-800 rounded; }

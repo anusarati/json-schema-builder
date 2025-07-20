@@ -24,9 +24,12 @@ export function toggleTheme() {
         if (darkTheme) darkTheme.disabled = false;
     }
 
-    // Re-highlight the code to apply the new theme
-    if (dom.schemaOutput) {
-       hljs.highlightElement(dom.schemaOutput);
+    // Re-highlight the code to apply the new theme.
+    // The main schema viewer has the `hljs` class and is re-themed by the browser.
+    // We only need to re-highlight content in modals that use auto-highlighting.
+    if (!dom.pydanticModal.classList.contains('hidden') && dom.pydanticOutput.textContent) {
+        dom.pydanticOutput.removeAttribute('data-highlighted');
+        hljs.highlightElement(dom.pydanticOutput);
     }
 }
 

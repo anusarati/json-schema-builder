@@ -358,7 +358,7 @@ export function generateAndDisplaySchema() {
 
     const newCode = document.createElement('code');
     newCode.id = 'schemaOutput';
-    newCode.className = 'language-json block w-full h-full p-4';
+    newCode.className = 'language-json hljs block w-full h-full p-4';
     newCode.innerHTML = schemaToHtmlRecursive(finalSchema, sourceMap);
     
     dom.schemaOutput.replaceWith(newCode);
