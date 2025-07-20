@@ -205,7 +205,10 @@ function schemaToHtmlRecursive(value, sourceMap, path = '', depth = 0) {
     const nextIndent = '  '.repeat(depth + 1);
 
     if (value === null) return `<span class="hljs-literal">null</span>`;
-    if (typeof value === 'string') return `<span class="hljs-string">"${value.replace(/"/g, '\\"')}"</span>`;
+    if (typeof value === 'string') {
+        const escaped = value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '\\"');
+        return `<span class="hljs-string">"${escaped}"</span>`;
+    }
     if (typeof value === 'number') return `<span class="hljs-number">${value}</span>`;
     if (typeof value === 'boolean') return `<span class="hljs-literal">${value}</span>`;
 
